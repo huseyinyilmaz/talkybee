@@ -1,0 +1,10 @@
+*~
+\#*\#
+\.\#*
+*.pyc
+deps/
+logs/
+ebin/
+doc/
+\.eunit
+*.beam
