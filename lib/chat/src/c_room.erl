@@ -192,8 +192,10 @@ handle_call(get_code, _From, #state{room_code=Room_code}=State) ->
 handle_call({create_user, User_code, User_nick},
 	    _From,
 	    #state{user_sup=SUP_Pid,users=Users}=State) ->
+    %% create user
     {ok, UPid} = c_user_sup:start_child(SUP_Pid,self(), User_code, User_nick),
     {ok, User_code} = c_user:get_code(UPid),
+    %% insert user pid into user_code pid mapping
     ets:insert(Users,{User_code, UPid}),
     Response = {ok, User_code},
     {reply, Response, State};
@@ -241,9 +243,9 @@ handle_cast({delete_user, User_pid}, #state{users=Users}=State) ->
     ets:match_delete(Users, {'_', User_pid}),
     {noreply, State};
 
-handle_cast({send_message, User_pid, Message}, #state{content=Content}=State) ->
-    {_, Code, Name} = c_user:get_info(User_pid),
-    %% New_content = [|]
+handle_cast({send_message, User_pid, Content}, #state{room_code=Room_code}=State) ->
+    {ok, {_, User_code, User_nick}} = c_user:get_info(User_pid),
+    {ok, _} = c_store:insert_message(Room_code, User_code, User_nick, Content),
     {noreply, State}.
 
 

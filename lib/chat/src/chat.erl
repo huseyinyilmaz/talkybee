@@ -164,7 +164,7 @@ get_user_count(Room_code) ->
 send_message(Room_code, User_code, Message) ->
     {ok, RPid} = c_room:get_room(Room_code),
     {ok, UPid} = c_room:get_user(RPid, User_code),
-    c_room:send_message(RPid,UPid,Message).
+    c_room:send_message(RPid, UPid, Message).
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
