@@ -15,7 +15,8 @@
 %% API
 -export([start_link/0, start_link/1, get_code/1,get_room/1,
 	 create_user/1, create_user/2, create_user/3, get_room_count/0,
-	 get_user/2, get_user_count/1, delete_user/2, send_message/3]).
+	 get_user/2, get_user_count/1, delete_user/2, send_message/3,
+	get_messages/1, get_messages/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -86,7 +87,7 @@ create_user(Pid) ->
 %%--------------------------------------------------------------------
 -spec create_user(pid(), User_code) -> {ok, User_code} when User_code::integer().
 create_user(Pid, User_code) ->
-    User_nick = "Anonymous",
+    User_nick = ?DEFAULT_NICK,
     create_user(Pid, User_code, User_nick).
 
 %%--------------------------------------------------------------------
@@ -138,6 +139,17 @@ delete_user(Room_pid, User_pid) ->
 -spec send_message(pid(), pid(), nonempty_string()) -> ok.
 send_message(Room_pid, User_pid, Message) ->
     gen_server:cast(Room_pid, {send_message, User_pid, Message}).
+
+
+get_messages(Room_pid) ->
+    gen_server:call(Room_pid, get_messages).
+
+get_messages(Room_pid, Last_msg_code) ->
+    gen_server:call(Room_pid, {get_messages, Last_msg_code}).
+
+
+
+
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -221,8 +233,15 @@ handle_call({get_user, User_code},
 
 handle_call(get_user_count, _From, #state{users=Users}=State) ->
     Response = {ok, ets:info(Users, size)},
-    {reply, Response, State}.
+    {reply, Response, State};
 
+handle_call(get_messages, _From, #state{room_code=Room_code}=State) ->
+    Response = c_store:get_messages(Room_code),
+    {reply, Response, State};
+
+handle_call({get_messages, Last_msg_code}, _From, #state{room_code=Room_code}=State) ->
+    Response = c_store:get_messages(Room_code, Last_msg_code),
+    {reply, Response, State}.
 
 %%--------------------------------------------------------------------
 %% @private

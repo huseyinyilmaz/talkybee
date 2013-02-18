@@ -59,7 +59,7 @@ insert_message(Room_code, User_code, User_nick, Content) ->
 
 
 get_messages(Room_code) ->
-    mnesia:dirty_read(message, Room_code).
+    {ok, mnesia:dirty_read(message, Room_code)}.
     
 get_messages(Room_code, Last_msg_code) ->
     Match = #message{room_code=Room_code,
@@ -69,7 +69,7 @@ get_messages(Room_code, Last_msg_code) ->
 		     content='_'},
     Guards = [{'<', Last_msg_code, '$1'}],
     Result = ['$_'],
-    mnesia:dirty_select(message,[{Match, Guards,Result}]).
+    {ok, mnesia:dirty_select(message,[{Match, Guards,Result}])}.
 %%--------------------------------------------------------------------
 %% @doc
 %% initialize mnesia tables for given type

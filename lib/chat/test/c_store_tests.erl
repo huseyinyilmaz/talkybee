@@ -79,9 +79,9 @@ create_code_test_() ->
 				    content= <<"5">>}
 			   ],
 	    %% Check if all messages for given Room is coming
-	    ?assertEqual(All_messages, c_store:get_messages(Room_code)),
+	    ?assertEqual({ok, All_messages}, c_store:get_messages(Room_code)),
 	    %% Check if messages after given number for given room is coming
-	    ?assertEqual(lists:sublist(All_messages,3,3), %[3,4,5]
+	    ?assertEqual({ok, lists:sublist(All_messages,3,3)}, %[3,4,5]
 			 c_store:get_messages(Room_code, Message_code_2))
 
 	end)

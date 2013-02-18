@@ -13,7 +13,7 @@
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
 	 get_room_count/0, create_user/1, create_user/2, create_user/3,
 	 get_user_nick/2, get_user_count/1, delete_user/2,
-	 send_message/3]).
+	 send_message/3, get_messages/1, get_messages/2]).
 
 
 %%%===================================================================
@@ -165,6 +165,16 @@ send_message(Room_code, User_code, Message) ->
     {ok, RPid} = c_room:get_room(Room_code),
     {ok, UPid} = c_room:get_user(RPid, User_code),
     c_room:send_message(RPid, UPid, Message).
+
+
+get_messages(Room_code) ->
+    {ok, RPid} = c_room:get_room(Room_code),
+    c_room:get_messages(RPid).
+
+get_messages(Room_code, Last_msg_code) ->
+    {ok, RPid} = c_room:get_room(Room_code),
+    c_room:get_messages(RPid, Last_msg_code).
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================

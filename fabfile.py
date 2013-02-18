@@ -52,8 +52,13 @@ def clean():
         app.clean()
 
 STARTUP = ['application:start(sasl)',
+           'c_store:init()',
            'chat:start()',
-           'appmon:start()']
+           'appmon:start()',
+           'chat:create_room(1)',
+           # 'chat:create_user(1, 2)',
+           # 'chat:send_message(1,2,<<"3">>)',
+           ]
 
 MNESIA_DIR = '/tmp/mnesia'
 NODE_NAME = 'dev_node'
