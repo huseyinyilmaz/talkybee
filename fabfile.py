@@ -54,8 +54,9 @@ def clean():
 STARTUP = ['application:start(sasl)',
            'c_store:init()',
            'chat:start()',
+           'ok = http:start()',
            'appmon:start()',
-           'chat:create_room(1)',
+           # 'chat:create_room(1)',
            # 'chat:create_user(1, 2)',
            # 'chat:send_message(1,2,<<"3">>)',
            ]

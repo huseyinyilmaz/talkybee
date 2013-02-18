@@ -1,0 +1,16 @@
+{application, http,
+ [
+  {description, "http_client"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  crypto,
+                  ranch,
+                  cowboy,
+		  chat
+                 ]},
+  {mod, { http_app, []}},
+  {env, []}
+ ]}.
