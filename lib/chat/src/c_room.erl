@@ -77,7 +77,7 @@ get_room_count() ->
 %%--------------------------------------------------------------------
 -spec create_user(pid()) -> {ok, integer()}.
 create_user(Pid) ->
-    User_code = erlang:phash2({node(), now()}),
+    User_code = c_utils:generate_code(),
     create_user(Pid, User_code).
 
 %%--------------------------------------------------------------------
@@ -169,7 +169,7 @@ start_link(Room_code) ->
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    Room_code = erlang:phash2({node(), now()}),
+    Room_code = c_utils:generate_code(),
     start_link(Room_code).
 
 %%--------------------------------------------------------------------
