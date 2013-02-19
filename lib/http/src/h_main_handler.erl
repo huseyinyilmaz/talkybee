@@ -8,17 +8,16 @@ init(_Transport, Req, []) ->
 	{ok, Req, undefined}.
 
 handle(Req, State) ->
-
-    Doc = {[
-	    {foo,bar},
-	    {test1,test2}
-	   ]},
-    Reply_text = jiffy:encode(Doc),
-    {ok, Req2} = cowboy_req:reply(200,
-				  [{<<"content-type">>, <<"application/json">>}],
-				  Reply_text,
-				  Req),
-    {ok, Req2, State}.
+    {Host_bin,Req2} = cowboy_req:host_url(Req),
+    {ok, Room_code} = chat:create_room(),
+    Room_code_bin = list_to_binary(
+		      integer_to_list(Room_code)),
+    Url_bin = <<Host_bin/binary, <<"/rooms/">>/binary, Room_code_bin/binary>>,
+    {ok, Req3} = cowboy_req:reply(302,
+				  [{<<"location">>, Url_bin}],
+				  <<>>,
+				  Req2),
+    {ok, Req3, State}.
 
 terminate(_Reason, _Req, _State) ->
 	ok.

@@ -11,11 +11,10 @@
 
 start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile(
-		 [
-		  {'_', [
-			 {"/", h_main_handler, []}
-			]}
-		 ]),
+		 [{'_', [{"/", h_main_handler, []},
+			 {"/rooms/[:room_code]", h_room_handler, []}
+			]}]),
+    
     {ok, _} = cowboy:start_http(http, 100, [{port, 8080}],
 				[{env, [{dispatch, Dispatch}]}]).
 
