@@ -14,6 +14,9 @@ start(_StartType, _StartArgs) ->
 		 [{'_', [%% {"/bullet/", h_room_handler, []}
 			 
 			 %% },
+			 {"/deps/bullet/[...]", cowboy_static,
+			  [{directory, {priv_dir, bullet, []}},
+			   {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
 			 {"/[...]", cowboy_static,
 			  [{directory, <<"./www">>},
 			   {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]}

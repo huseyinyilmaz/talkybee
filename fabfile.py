@@ -67,6 +67,7 @@ NODE_NAME = 'dev_node'
 
 @task
 def shell():
+    compile()
     path_list = (app.get_path() for app in get_apps())
     include_list = (app.get_include_path() for app in get_apps())
     local(('erl -pa %(path)s -i %(include_path)s -eval "%(startup)s" '
@@ -81,6 +82,7 @@ def shell():
 @task
 def eunit():
     local('rebar skip_deps=true eunit')
+
 
 @task
 def ct():
