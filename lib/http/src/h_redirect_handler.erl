@@ -1,4 +1,4 @@
--module(h_main_handler).
+-module(h_redirect_handler).
 
 -export([init/3]).
 -export([handle/2]).
