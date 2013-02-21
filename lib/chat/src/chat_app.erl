@@ -1,4 +1,4 @@
-%%%-------------------------------------------------------------------
+rooms%%%-------------------------------------------------------------------
 %%% @author Huseyin Yilmaz <huseyin@huseyin-work>
 %%% @copyright (C) 2013, Huseyin Yilmaz
 %%% @doc
@@ -37,8 +37,10 @@
             any()) -> {ok, pid()} | {ok, pid(), State::any()} |
                       {error, Reason::any()}.
 start(_StartType, _StartArgs) ->
-    %% Create a global named table
+    %% Create a global named tables
     ets:new(rooms,[set, public, named_table]),
+    ets:new(users,[set, public, named_table]),
+
     %% Start main supervisor
     case chat_sup:start_link() of
 	{ok, Pid} ->

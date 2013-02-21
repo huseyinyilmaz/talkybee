@@ -12,8 +12,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %% API
--export([start_link/3, get_nick/1, get_code/1, get_info/1,
-	delete/1]).
+-export([start_link/2, get_nick/1, get_code/1, get_info/1,
+	 stop/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -21,16 +21,24 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {room, code, nick}).
+-record(state, {code, nick}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
+%%--------------------------------------------------------------------
+%% @doc
+%% Starts a new user server
+%% @end
+%%--------------------------------------------------------------------
+-spec start_link(binary(), binary()) -> {ok, pid()} | ignore | {error, any()}.
+start_link(Code, Nick) ->
+    gen_server:start_link(?MODULE, [Code, Nick], []).
+
 
 -spec get_nick(pid()) -> {ok,nonempty_string()}.
 get_nick(Pid) ->
     gen_server:call(Pid,get_nick).
-
 
 -spec get_code(pid()) -> {ok,integer()}.
 get_code(Pid) ->
@@ -40,19 +48,10 @@ get_code(Pid) ->
 get_info(Pid)->
     gen_server:call(Pid,get_info).
 
--spec delete(pid()) -> ok.
-delete(Pid) ->
-    gen_server:cast(Pid,delete),
+-spec stop(pid()) -> ok.
+stop(Pid) ->
+    gen_server:cast(Pid,stop),
     ok.
-%%--------------------------------------------------------------------
-%% @doc
-%% Starts the server
-%%
-%% @spec start_link(Code, Nick) -> {ok, Pid} | ignore | {error, Error}
-%% @end
-%%--------------------------------------------------------------------
-start_link(Room_pid, Code, Nick) ->
-    gen_server:start_link(?MODULE, [Room_pid, Code, Nick], []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -69,8 +68,9 @@ start_link(Room_pid, Code, Nick) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Room_pid, Code, Nick]) ->
-    {ok, #state{room=Room_pid, code=Code,nick=Nick}}.
+init([Code, Nick]) ->
+    ets:insert(users, {Code, self()}),
+    {ok, #state{code=Code,nick=Nick}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -94,10 +94,9 @@ handle_call(get_nick, _From, #state{nick=Nick}=State) ->
     Reply = {ok, Nick},
     {reply, Reply, State};
 
-handle_call(get_info, _From, #state{room=Room_pid,
-				    code=Code,
+handle_call(get_info, _From, #state{code=Code,
 				    nick=Nick}=State) ->
-    Reply = {ok, {Room_pid, Code, Nick}},
+    Reply = {ok, {Code, Nick}},
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
@@ -154,21 +153,3 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-
-
-%%%===================================================================
-%%% Tests
-%%%===================================================================
-get_data_test() ->
-    Nick = "test",
-    ok = chat:start(),
-    {ok, Room} = chat:create_room(),
-    {ok, User} = chat:create_user(Room,1,Nick),
-    {ok, RPid} = c_room:get_room(Room),
-    {ok, UPid} = c_room:get_user(RPid, User),
-    true = is_process_alive(UPid),
-    {ok, User} = c_user:get_code(UPid),
-    {ok, Nick} = c_user:get_nick(UPid),
-    {ok, {RPid, User, Nick}} = c_user:get_info(UPid),
-    ok = chat:stop().
-    

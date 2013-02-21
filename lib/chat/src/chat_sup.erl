@@ -64,10 +64,13 @@ init([]) ->
     Shutdown = 2000,
     Type = worker,
 
-    AChild = {c_room_sup, {c_room_sup, start_link, []},
-	      Restart, Shutdown, Type, [c_room_sup]},
+    Room_sup = {c_room_sup, {c_room_sup, start_link, []},
+		Restart, Shutdown, Type, [c_room_sup]},
 
-    {ok, {SupFlags, [AChild]}}.
+    User_sup = {c_user_sup, {c_user_sup, start_link, []},
+		Restart, Shutdown, Type, [c_user_sup]},
+    
+    {ok, {SupFlags, [Room_sup, User_sup]}}.
 
 %%%===================================================================
 %%% Internal functions

@@ -11,22 +11,29 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_child/4]).
+-export([start_link/0, start_child/2]).
 
 %% Supervisor callbacks
 -export([init/1]).
 
 -define(SERVER, ?MODULE).
+-define(DEFAULT_NICK, <<"Anonymous">>).
 
 %%%===================================================================
 %%% API functions
 %%%===================================================================
 
--spec start_child(pid(), pid(), integer(), nonempty_string()) -> ok.
-start_child(Sup_pid,Room_pid, Code, Nick) ->
-    Args_to_append = [Room_pid, Code, Nick],
-    supervisor:start_child(Sup_pid, Args_to_append).
-
+%%--------------------------------------------------------------------
+%% @doc
+%% Starts a new user
+%%
+%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @end
+%%--------------------------------------------------------------------
+%% -spec start_child(binary(), binary()) -> {ok, pid} | {error, any()}.
+start_child(Code, Nick) ->
+    Args_to_append = [Code, Nick],
+    supervisor:start_child(?SERVER, Args_to_append).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -36,7 +43,7 @@ start_child(Sup_pid,Room_pid, Code, Nick) ->
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    supervisor:start_link(?MODULE, []).
+    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 %%%===================================================================
 %%% Supervisor callbacks
@@ -66,10 +73,10 @@ init([]) ->
     Shutdown = 2000,
     Type = worker,
 
-    AChild = {c_user, {c_user, start_link, []},
-	      Restart, Shutdown, Type, [c_user]},
+    User = {c_user, {c_user, start_link, []},
+	    Restart, Shutdown, Type, [c_user]},
 
-    {ok, {SupFlags, [AChild]}}.
+    {ok, {SupFlags, [User]}}.
 
 %%%===================================================================
 %%% Internal functions

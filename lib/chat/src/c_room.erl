@@ -10,10 +10,8 @@
 
 -behaviour(gen_server).
 
--include("records.hrl").
-
 %% API
--export([start_link/0, start_link/1, get_code/1,get_room/1,
+-export([start_link/1, start_link_sup/1, get_code/1,get_room/1,
 	 create_user/1, create_user/2, create_user/3, get_room_count/0,
 	 get_user/2, get_user_count/1, delete_user/2, send_message/3,
 	get_messages/1, get_messages/2]).
@@ -24,9 +22,8 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {room_code,
-		content,
-		user_sup,
+-record(state, {code,
+		event_manager,
 		users}).
 
 %%%===================================================================
@@ -153,24 +150,25 @@ get_messages(Room_pid, Last_msg_code) ->
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Starts a new room server
+%% Delegates creating child to room supervisor
 %%
 %% @spec start_link(Room_code) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
 start_link(Room_code) ->
-    gen_server:start_link(?MODULE, [Room_code], []).
+    c_room_sup:create_child(Room_code).
+
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Starts a new room server
+%% Supervisor callback
 %%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link(Room_code) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    Room_code = c_utils:generate_code(),
-    start_link(Room_code).
+
+start_link_sup(Room_code) ->
+    gen_server:start_link(?MODULE, [Room_code], []).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -187,12 +185,11 @@ init([Room_code]) ->
     case get_room(Room_code) of
 	{ok , _} -> {stop, already_exists};
 	{error, not_found} ->
-	    {ok, User_sup} = c_user_sup:start_link(),
+	    {ok, Event_manager} = c_room_event:start_link(),
 	    ets:insert(rooms, {Room_code, self()}),
 	    Users = ets:new(users,[set]),
 	    {ok, #state{room_code=Room_code,
-			content=queue:new(),
-			user_sup=User_sup,
+			event_manager=Event_manager,
 			users=Users}}
     end.
 

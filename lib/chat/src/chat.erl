@@ -91,11 +91,12 @@ get_room_count()->
 %%--------------------------------------------------------------------
 %% @doc
 %% Creates a new user for given Room_code
-%% @spec create_user(Room_code) -> {ok, Room_code}
 %% @end
 %%--------------------------------------------------------------------
-create_user(Room_code) ->
-    {ok, Pid} = c_room:get_room(Room_code),
+
+-spec create_user() -> {ok, Room_code}
+create_user() ->
+    c_user:start_link(c_utils:generate_code(), ?DEFAULT_NICK),
     c_room:create_user(Pid).
 
 
