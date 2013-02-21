@@ -62,7 +62,7 @@ STARTUP = ['application:start(sasl)',
            ]
 
 MNESIA_DIR = '/tmp/mnesia'
-NODE_NAME = 'dev_node'
+NODE_NAME = 'emacs'
 
 
 @task
