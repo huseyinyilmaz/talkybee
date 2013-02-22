@@ -38,7 +38,6 @@ init() ->
 -spec start() -> ok.
 start() ->
     io:format("Starting apps", []),
-    ok = c_store:init(),
     ok = chat:start(),
     ok = http:start(),
     ok.

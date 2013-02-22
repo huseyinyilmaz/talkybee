@@ -11,28 +11,30 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/1, start_link_sup/1, get_code/1,get_room/1,
-	 create_user/1, create_user/2, create_user/3, get_room_count/0,
-	 get_user/2, get_user_count/1, delete_user/2, send_message/3,
-	get_messages/1, get_messages/2]).
+-export([start_link/1, get_code/1, get_room/1,
+	 get_event_manager/1, get_count/0, stop/1, send_message/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
-	 terminate/2, code_change/3, stop/1]).
+	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE). 
 
 -record(state, {code,
-		event_manager,
-		users}).
+		event_manager}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-%%%===================================================================
-%%% ROOM API's
-%%%===================================================================
+%%--------------------------------------------------------------------
+%% @doc
+%% Supervisor callback that creates an instance
+%% @end
+%%--------------------------------------------------------------------
+-spec start_link(binary()) -> {ok, pid()} | ignore | {error, any()}.
+start_link(Code) ->
+    gen_server:start_link(?MODULE, [Code], []).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -43,14 +45,23 @@
 get_code(Pid) ->
     gen_server:call(Pid, get_code).
 
-get_room(Room_code) ->    
-    case ets:lookup(rooms, Room_code) of
-        [{Room_code, Pid}] ->
+%%--------------------------------------------------------------------
+%% @doc
+%% Gets room code from pid
+%% @end
+%%--------------------------------------------------------------------
+-spec get_event_manager(pid()) -> {ok, pid()}.
+get_event_manager(Pid) ->
+    gen_server:call(Pid, get_event_manager).
+
+get_room(Code) ->    
+    case ets:lookup(rooms, Code) of
+        [{Code, Pid}] ->
 	    %% if process is dead remove it and
 	    %% return not found
 	    case is_process_alive(Pid) of
 		true -> {ok, Pid};
-		false -> ets:delete(rooms, Room_code),
+		false -> ets:delete(rooms, Code),
 			 {error, not_found}
 	    end;
         []           -> {error, not_found}
@@ -59,116 +70,12 @@ get_room(Room_code) ->
 stop(Pid) ->
     gen_server:cast(Pid, stop).
 
--spec get_room_count() -> {ok, integer()}.
-get_room_count() ->
+-spec get_count() -> {ok, integer()}.
+get_count() ->
     {ok, ets:info(rooms, size)}.
 
-%%%===================================================================
-%%% User API's
-%%%===================================================================
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Create user for given room
-%% @end
-%%--------------------------------------------------------------------
--spec create_user(pid()) -> {ok, integer()}.
-create_user(Pid) ->
-    User_code = c_utils:generate_code(),
-    create_user(Pid, User_code).
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Create user for given room
-%% @end
-%%--------------------------------------------------------------------
--spec create_user(pid(), User_code) -> {ok, User_code} when User_code::integer().
-create_user(Pid, User_code) ->
-    User_nick = ?DEFAULT_NICK,
-    create_user(Pid, User_code, User_nick).
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Create user for given room
-%% @end
-%%--------------------------------------------------------------------
--spec create_user(pid(), User_code, nonempty_string()) -> {ok, User_code}
-							      when User_code::integer().
-create_user(Pid, User_code, User_nick) ->
-    gen_server:call(Pid, {create_user, User_code, User_nick}).
-
-%%--------------------------------------------------------------------
-%% @doc
-%% get user's Pid that has given user code
-%% @end
-%%--------------------------------------------------------------------
--spec get_user(pid(), User_code::integer()) -> {ok, pid()} |
-					       {error, Error::atom()}.
-get_user(Pid, User_code) ->
-    gen_server:call(Pid, {get_user, User_code}).
-
-
-%%--------------------------------------------------------------------
-%% @doc
-%% get number of users for given room 
-%% @end
-%%--------------------------------------------------------------------
--spec get_user_count(pid()) -> {ok, pid()}.
-get_user_count(RPid) ->
-    gen_server:call(RPid, get_user_count).
-
-%%--------------------------------------------------------------------
-%% @doc
-%% get number of users for given room 
-%% @end
-%%--------------------------------------------------------------------
--spec delete_user(pid(), pid()) -> ok | {error, Error::atom()}.
-delete_user(Room_pid, User_pid) ->
-    gen_server:cast(Room_pid, {delete_user, User_pid}).
-
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Sends given message to given room by given user
-%% @spec archive_user(Room_code, User_code) -> {ok, User_nick}
-%% @end
-%%--------------------------------------------------------------------
--spec send_message(pid(), pid(), nonempty_string()) -> ok.
-send_message(Room_pid, User_pid, Message) ->
-    gen_server:cast(Room_pid, {send_message, User_pid, Message}).
-
-
-get_messages(Room_pid) ->
-    gen_server:call(Room_pid, get_messages).
-
-get_messages(Room_pid, Last_msg_code) ->
-    gen_server:call(Room_pid, {get_messages, Last_msg_code}).
-
-
-
-
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Delegates creating child to room supervisor
-%%
-%% @spec start_link(Room_code) -> {ok, Pid} | ignore | {error, Error}
-%% @end
-%%--------------------------------------------------------------------
-start_link(Room_code) ->
-    c_room_sup:create_child(Room_code).
-
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Supervisor callback
-%%
-%% @spec start_link(Room_code) -> {ok, Pid} | ignore | {error, Error}
-%% @end
-%%--------------------------------------------------------------------
-
-start_link_sup(Room_code) ->
-    gen_server:start_link(?MODULE, [Room_code], []).
+send_message(RPid, Upid, Message) ->
+    gen_server:cast(RPid, {send_message, Upid, Message}).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -181,64 +88,23 @@ start_link_sup(Room_code) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Room_code]) ->
-    case get_room(Room_code) of
+init([Code]) ->
+    case get_room(Code) of
 	{ok , _} -> {stop, already_exists};
 	{error, not_found} ->
 	    {ok, Event_manager} = c_room_event:start_link(),
-	    ets:insert(rooms, {Room_code, self()}),
-	    Users = ets:new(users,[set]),
-	    {ok, #state{room_code=Room_code,
-			event_manager=Event_manager,
-			users=Users}}
+	    ets:insert(rooms, {Code, self()}),
+	    {ok, #state{code=Code,
+			event_manager=Event_manager}}
     end.
 
 
 
-handle_call(get_code, _From, #state{room_code=Room_code}=State) ->
-    {reply, {ok, Room_code}, State};
-    
-handle_call({create_user, User_code, User_nick},
-	    _From,
-	    #state{user_sup=SUP_Pid,users=Users}=State) ->
-    %% create user
-    {ok, UPid} = c_user_sup:start_child(SUP_Pid,self(), User_code, User_nick),
-    {ok, User_code} = c_user:get_code(UPid),
-    %% insert user pid into user_code pid mapping
-    ets:insert(Users,{User_code, UPid}),
-    Response = {ok, User_code},
-    {reply, Response, State};
+handle_call(get_code, _From, #state{code=Code}=State) ->
+    {reply, {ok, Code}, State};
 
-handle_call({get_user, User_code},
-	    _From,
-	    #state{users=Users}=State) ->
-    
-    case ets:lookup(Users, User_code) of
-        [{User_code, UPid}] ->
-	    %% if process is dead remove it and
-	    %% return not found
-	    case is_process_alive(UPid) of
-		true ->
-		    Response = {ok, UPid};
-		false -> ets:delete(Users, User_code),
-			 Response = {error, not_found}
-	    end;
-        [] ->
-	    Response = {error, not_found}
-    end,
-    {reply, Response, State};
-
-handle_call(get_user_count, _From, #state{users=Users}=State) ->
-    Response = {ok, ets:info(Users, size)},
-    {reply, Response, State};
-
-handle_call(get_messages, _From, #state{room_code=Room_code}=State) ->
-    Response = c_store:get_messages(Room_code),
-    {reply, Response, State};
-
-handle_call({get_messages, Last_msg_code}, _From, #state{room_code=Room_code}=State) ->
-    Response = c_store:get_messages(Room_code, Last_msg_code),
-    {reply, Response, State}.
+handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State) ->
+    {reply, {ok, Event_manager}, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -250,19 +116,12 @@ handle_call({get_messages, Last_msg_code}, _From, #state{room_code=Room_code}=St
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-
-handle_cast(stop, State) ->
-    {stop, normal, State};
-
-handle_cast({delete_user, User_pid}, #state{users=Users}=State) ->
-    ok = c_user:delete(User_pid),
-    ets:match_delete(Users, {'_', User_pid}),
+handle_cast({send_message, Upid, Message}, #state{event_manager=Event_manager}=State) ->
+    Event_manager:notify(Event_manager, {send_message, self(), Upid, Message}),
     {noreply, State};
 
-handle_cast({send_message, User_pid, Content}, #state{room_code=Room_code}=State) ->
-    {ok, {_, User_code, User_nick}} = c_user:get_info(User_pid),
-    {ok, _} = c_store:insert_message(Room_code, User_code, User_nick, Content),
-    {noreply, State}.
+handle_cast(stop, State) ->
+    {stop, normal, State}.
 
 
 %%--------------------------------------------------------------------

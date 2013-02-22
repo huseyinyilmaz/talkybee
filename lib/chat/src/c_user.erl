@@ -12,8 +12,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %% API
--export([start_link/2, get_nick/1, get_code/1, get_info/1,
-	 stop/1]).
+-export([start_link/2, get_user/1, get_nick/1, get_code/1,
+	 get_info/1, get_count/0, stop/1, receive_message/4]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -35,10 +35,22 @@
 start_link(Code, Nick) ->
     gen_server:start_link(?MODULE, [Code, Nick], []).
 
+get_user(Code) ->    
+    case ets:lookup(users, Code) of
+        [{Code, Pid}] ->
+	    %% if process is dead remove it and
+	    %% return not found
+	    case is_process_alive(Pid) of
+		true -> {ok, Pid};
+		false -> ets:delete(users, Code),
+			 {error, not_found}
+	    end;
+        []           -> {error, not_found}
+    end.
 
 -spec get_nick(pid()) -> {ok,nonempty_string()}.
 get_nick(Pid) ->
-    gen_server:call(Pid,get_nick).
+    gen_server:call(Pid, get_nick).
 
 -spec get_code(pid()) -> {ok,integer()}.
 get_code(Pid) ->
@@ -52,6 +64,13 @@ get_info(Pid)->
 stop(Pid) ->
     gen_server:cast(Pid,stop),
     ok.
+
+-spec get_count() -> {ok, integer()}.
+get_count() ->
+    {ok, ets:info(user, size)}.
+
+receive_message(Topid, Frompid, Roompid, Message) ->
+    gen_server:cast(Topid, {receive_message, Frompid, Roompid, Message}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -69,8 +88,13 @@ stop(Pid) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Code, Nick]) ->
-    ets:insert(users, {Code, self()}),
-    {ok, #state{code=Code,nick=Nick}}.
+    case get_user(Code) of
+	{ok , _} -> {stop, already_exists};
+	{error, not_found} ->
+	    ets:insert(users, {Code, self()}),
+	    {ok, #state{code=Code,
+			nick=Nick}}
+    end.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -109,7 +133,11 @@ handle_call(get_info, _From, #state{code=Code,
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast(delete, State) ->
+handle_cast({receive_message, Pid, Rpid, Message}, State) ->
+    io:format("test xxx ~p , ~p , ~p, ~p" , [Pid, Rpid, Message, State]),
+    {stop, normal, State};
+
+handle_cast(stop, State) ->
     {stop, normal, State}.
 
 %%--------------------------------------------------------------------

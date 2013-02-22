@@ -8,3 +8,4 @@ ebin/
 doc/
 \.eunit
 *.beam
+*.plt

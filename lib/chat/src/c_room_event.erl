@@ -11,7 +11,7 @@
 -behaviour(gen_event).
 
 %% API
--export([start_link/0, add_handler/0]).
+-export([start_link/0, add_handler/1]).
 
 %% gen_event callbacks
 -export([init/1, handle_event/2, handle_call/2, 
@@ -19,7 +19,8 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {}).
+-record(state, {room,
+		user}).
 
 %%%===================================================================
 %%% gen_event callbacks
@@ -33,7 +34,7 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    gen_event:start_link({local, ?SERVER}).
+    gen_event:start_link().
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -42,8 +43,8 @@ start_link() ->
 %% @spec add_handler() -> ok | {'EXIT', Reason} | term()
 %% @end
 %%--------------------------------------------------------------------
-add_handler() ->
-    gen_event:add_handler(?SERVER, ?MODULE, []).
+add_handler(Pid) ->
+    gen_event:add_handler(?SERVER, ?MODULE, [Pid]).
 
 %%%===================================================================
 %%% gen_event callbacks
@@ -58,8 +59,9 @@ add_handler() ->
 %% @spec init(Args) -> {ok, State}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init([Rpid, Upid]) ->
+    {ok, #state{room=Rpid,
+		user=Upid}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -74,6 +76,10 @@ init([]) ->
 %%                          remove_handler
 %% @end
 %%--------------------------------------------------------------------
+handle_event({send_message, Pid, Message}, #state{room=Rpid, user=Upid}=State) ->
+    c_user:receive_message(Upid, Pid, Rpid, Message),
+    {ok, State};
+
 handle_event(_Event, State) ->
     {ok, State}.
 

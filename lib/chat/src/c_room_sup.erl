@@ -11,7 +11,7 @@
 
 -behaviour(supervisor).
 %% API
--export([start_link/0, start_child/0, start_child/1]).
+-export([start_link/0, start_child/1]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -21,9 +21,6 @@
 %%%===================================================================
 %%% API functions
 %%%===================================================================
-start_child() ->
-    Args_to_append = [],
-    supervisor:start_child(?SERVER, Args_to_append).
 
 start_child(Code) ->
     Args_to_append = [Code],
@@ -67,17 +64,7 @@ init([]) ->
     Shutdown = 2000,
     Type = worker,
 
-    AChild = {room, {c_room, start_link, []},
+    Room = {room, {c_room, start_link, []},
 	      Restart, Shutdown, Type, [c_room]},
 
-    {ok, {SupFlags, [AChild]}}.
-
-%%%===================================================================
-%%% Internal functions
-%%%===================================================================
-
-
-%%%===================================================================
-%%% Test
-%%%===================================================================
-    
+    {ok, {SupFlags, [Room]}}.
