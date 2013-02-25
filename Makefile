@@ -52,3 +52,20 @@ start: compile
                    appmon:start(),\
 		   chat:start(),\
 		   http:start()."
+
+dev: compile
+	erl -pa lib/*/ebin deps/*/ebin \
+	    -i  lib/*/include deps/*/include \
+	    -mnesia dir $(MNESIA_DIR) \
+	    -sname $(NODE_NAME) \
+	    -eval "application:start(sasl),\
+                   appmon:start(),\
+		   chat:start(),\
+		   chat:create_room(1),\
+                   {ok, Room} = c_room:get_room(1),\
+                   chat:create_user(1,1),\
+                   chat:create_user(2,2),\
+		   {ok, User1} = c_user:get_user(1),\
+                   {ok, User2} = c_user:get_user(2),\
+                   c_room:add_user(Room,User1),\
+                   c_room:add_user(Room,User2)."

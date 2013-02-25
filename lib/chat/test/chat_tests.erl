@@ -46,6 +46,35 @@ user_test_() ->
 	end)
     ]}.
 
+
+message_test_() ->
+    {setup,
+     fun fixtures:setup_chat/0,
+     fun fixtures:cleanup_chat/1,
+     [?_test(
+	begin
+	    Room_code = <<"room_code">>,
+	    User1_code = <<"user1_code">>,
+	    User2_code = <<"user2_code">>,
+
+	    %% Create processes
+	    ?assertEqual({ok, Room_code}, chat:create_room(Room_code)),
+	    ?assertEqual({ok, User1_code}, chat:create_user(User1_code, User1_code)),
+	    ?assertEqual({ok, User2_code}, chat:create_user(User2_code, User2_code)),
+
+	    %% Add users to room
+	    ?assertMatch({ok , _} , chat:add_user(Room_code, User1_code)),
+	    ?assertMatch({ok , _} , chat:add_user(Room_code, User2_code)),
+
+	    %% Stop processes
+	    ?assertEqual(ok, chat:stop_room(Room_code)),
+	    ?assertEqual(ok, chat:stop_user(User1_code)),
+	    ?assertEqual(ok, chat:stop_user(User2_code))
+	    
+	end)
+    ]}.
+
+
 %% create_user_test_() ->
 %%     {setup,
 %%      fun fixtures:setup_chat/0,

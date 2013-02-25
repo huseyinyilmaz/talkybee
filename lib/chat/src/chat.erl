@@ -12,7 +12,7 @@
 %% API
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
 	 create_user/0, create_user/2, stop_user/1, get_room_count/0,
-	 get_user_nick/1, get_user_count/0]).
+	 get_user_nick/1, get_user_count/0, add_user/2]).
 
 %%%===================================================================
 %%% API
@@ -139,3 +139,23 @@ get_user_nick(Code) ->
 	Error ->
 	    Error
     end.
+
+
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Gets pid of given user_code for given room_code
+%% @spec get_user_nick(Room_code, User_code) -> {ok, User_nick}
+%% @end
+%%--------------------------------------------------------------------
+add_user(Room_code, User_code) ->
+    case c_room:get_room(Room_code) of
+	{ok, Rpid} ->
+	    case c_user:get_user(User_code) of
+		{ok, Upid} -> c_room:add_user(Rpid, Upid);
+		Error -> Error
+	    end;
+	Error -> Error
+    end.
+    
+

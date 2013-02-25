@@ -11,7 +11,7 @@
 -behaviour(gen_event).
 
 %% API
--export([start_link/0, add_handler/1]).
+-export([start_link/0, add_handler/2, delete_handler/2]).
 
 %% gen_event callbacks
 -export([init/1, handle_event/2, handle_call/2, 
@@ -19,8 +19,7 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {room,
-		user}).
+-record(state, {user}).
 
 %%%===================================================================
 %%% gen_event callbacks
@@ -43,8 +42,19 @@ start_link() ->
 %% @spec add_handler() -> ok | {'EXIT', Reason} | term()
 %% @end
 %%--------------------------------------------------------------------
-add_handler(Pid) ->
-    gen_event:add_handler(?SERVER, ?MODULE, [Pid]).
+-spec add_handler(pid(), pid()) -> ok | {'EXIT', term()} | term().
+add_handler(Pid, Upid) ->
+    gen_event:add_handler(Pid, {?MODULE, Upid}, [Upid]).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Adds an event handler
+%%
+%% @end
+%%--------------------------------------------------------------------
+-spec delete_handler(pid(), pid()) -> ok.
+delete_handler(Pid, Upid) ->
+    gen_event:delete_handler(Pid, {?MODULE, Upid}, [delete_handler, Upid]).
 
 %%%===================================================================
 %%% gen_event callbacks
@@ -59,9 +69,8 @@ add_handler(Pid) ->
 %% @spec init(Args) -> {ok, State}
 %% @end
 %%--------------------------------------------------------------------
-init([Rpid, Upid]) ->
-    {ok, #state{room=Rpid,
-		user=Upid}}.
+init([Upid]) ->
+    {ok, #state{user=Upid}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -76,7 +85,8 @@ init([Rpid, Upid]) ->
 %%                          remove_handler
 %% @end
 %%--------------------------------------------------------------------
-handle_event({send_message, Pid, Message}, #state{room=Rpid, user=Upid}=State) ->
+handle_event({send_message, Rpid, Pid, Message}, #state{user=Upid}=State) ->
+    io:format("testtest"),
     c_user:receive_message(Upid, Pid, Rpid, Message),
     {ok, State};
 
@@ -127,6 +137,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
+    io:format("~p, ~p~n", [_Reason, _State]),
     ok.
 
 %%--------------------------------------------------------------------

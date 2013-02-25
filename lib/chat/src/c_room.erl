@@ -12,7 +12,8 @@
 
 %% API
 -export([start_link/1, get_code/1, get_room/1,
-	 get_event_manager/1, get_count/0, stop/1, send_message/3]).
+	 get_event_manager/1, get_count/0, stop/1,
+	 add_user/2, remove_user/2, send_message/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -74,8 +75,15 @@ stop(Pid) ->
 get_count() ->
     {ok, ets:info(rooms, size)}.
 
-send_message(RPid, Upid, Message) ->
-    gen_server:cast(RPid, {send_message, Upid, Message}).
+
+add_user(Rpid, Upid) ->
+    gen_server:call(Rpid,{add_user, Upid}).
+
+remove_user(Rpid, Upid) ->
+    gen_server:call(Rpid,{add_user, Upid}).
+    
+send_message(Rpid, Upid, Message) ->
+    gen_server:cast(Rpid, {send_message, Upid, Message}).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -104,6 +112,12 @@ handle_call(get_code, _From, #state{code=Code}=State) ->
     {reply, {ok, Code}, State};
 
 handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State) ->
+    {reply, {ok, Event_manager}, State};
+
+handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
+    {reply, {ok, Event_manager}, State};
+
+handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
     {reply, {ok, Event_manager}, State}.
 
 %%--------------------------------------------------------------------
@@ -117,6 +131,7 @@ handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State)
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({send_message, Upid, Message}, #state{event_manager=Event_manager}=State) ->
+    io:format("test"),
     Event_manager:notify(Event_manager, {send_message, self(), Upid, Message}),
     {noreply, State};
 
