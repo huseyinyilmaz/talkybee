@@ -144,7 +144,7 @@ get_user_nick(Code) ->
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Gets pid of given user_code for given room_code
+%% Adds given user to given room
 %% @spec get_user_nick(Room_code, User_code) -> {ok, User_nick}
 %% @end
 %%--------------------------------------------------------------------

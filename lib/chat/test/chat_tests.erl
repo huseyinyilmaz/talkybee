@@ -6,7 +6,8 @@ room_test_() ->
     {setup,
      fun fixtures:setup_chat/0,
      fun fixtures:cleanup_chat/1,
-     ?_test(
+     {"Create and stop room test",
+       ?_test(
 	begin
 	    Code = <<"test_code">>,
 	    {ok, Room_code} = chat:create_room(),
@@ -15,7 +16,7 @@ room_test_() ->
 	    ?assertEqual(ok, chat:stop_room(Room_code)),
 	    ?assertEqual(ok, chat:stop_room(Code)),
 	    {error, not_found} = chat:stop_room(<<"invalid_name">>)
-	end)
+	end)}
     }.
 
 
@@ -23,7 +24,8 @@ user_test_() ->
     {setup,
      fun fixtures:setup_chat/0,
      fun fixtures:cleanup_chat/1,
-     [?_test(
+     [{"Create and stop user test.",
+       ?_test(
 	begin
 	    Code = <<"test_code">>,
 	    {ok, User_code} = chat:create_user(),
@@ -32,8 +34,9 @@ user_test_() ->
 	    ?assertEqual(ok, chat:stop_user(User_code)),
 	    ?assertEqual(ok, chat:stop_user(Code)),
 	    {error, not_found} = chat:stop_user(<<"invalid_name">>)
-	end),
-     ?_test(
+	end)},
+     {"chat:get_user_nick test",
+      ?_test(
 	begin
 	    Code = <<"code">>,
 	    Nick = <<"nick">>,
@@ -43,7 +46,7 @@ user_test_() ->
 	    timer:sleep(20),
 	    ?assertEqual({error, not_found}, chat:get_user_nick(Code))
 		
-	end)
+	end)}
     ]}.
 
 
@@ -51,7 +54,8 @@ message_test_() ->
     {setup,
      fun fixtures:setup_chat/0,
      fun fixtures:cleanup_chat/1,
-     [?_test(
+     [{"send message test",
+       ?_test(
 	begin
 	    Room_code = <<"room_code">>,
 	    User1_code = <<"user1_code">>,
@@ -71,7 +75,7 @@ message_test_() ->
 	    ?assertEqual(ok, chat:stop_user(User1_code)),
 	    ?assertEqual(ok, chat:stop_user(User2_code))
 	    
-	end)
+	end)}
     ]}.
 
 

@@ -10,7 +10,8 @@
 -module(debug).
 
 %% API
--export([init/0, start/0, stop/0, restart/0]).
+-export([init/0, start/0, stop/0, restart/0,
+	start_dev/0, stop_dev/0, restart_dev/0]).
 
 %%%===================================================================
 %%% API
@@ -53,6 +54,32 @@ restart() ->
     stop(),
     start().
 
+
+start_dev() ->
+    Room_code = <<"room">>,
+    User1_code = <<"user1">>,
+    User2_code = <<"user2">>,
+	
+    {ok, Room_code} = chat:create_room(Room_code),
+    {ok, User1_code} = chat:create_user(User1_code, User1_code),
+    {ok, User2_code} = chat:create_user(User2_code, User2_code),
+    chat:add_user(Room_code,User1_code),
+    chat:add_user(Room_code,User2_code),
+    {Room_code, User1_code, User2_code}.
+
+
+stop_dev() ->
+    Room_code = <<"room">>,
+    User1_code = <<"user1">>,
+    User2_code = <<"user2">>,
+    
+    chat:stop_user(User1_code),
+    chat:stop_user(User2_code),
+    chat:stop_room(Room_code).
+
+restart_dev() ->
+    ok = stop_dev(),
+    start_dev().
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
