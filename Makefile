@@ -44,8 +44,8 @@ docs:
 	@$(REBAR) doc skip_deps=true
 
 shell: compile
-	erl -pa lib/*/ebin deps/*/ebin \
-	    -i  lib/*/include deps/*/include \
+	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin\
+	    -i  lib/*/include deps/*/include devutils/*/include\
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME)
 
@@ -55,11 +55,9 @@ start: compile
 	    -i  lib/*/include deps/*/include devutils/*/include \
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME) \
-	    -eval "application:start(sasl),\
-                   appmon:start(),\
-		   chat:start(),\
-		   http:start(),
-		   sync:go()."
+	    -eval "debug:init(),\
+	           debug:start(),\
+	           debug:create_structures()."
 
 dev: compile
 	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \

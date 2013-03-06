@@ -10,7 +10,7 @@
 -module(debug).
 
 %% API
--export([init/0, start/0, stop/0, restart/0]).
+-export([init/0, start/0, stop/0, restart/0, create_structures/0]).
 
 %%%===================================================================
 %%% API
@@ -33,6 +33,7 @@ init() ->
     code:add_patha("deps/mimetypes/ebin"),
     code:add_patha("lib/http/ebin"),
     code:add_patha("lib/chat/ebin"),
+    sync:go(),
     ok.
 
 -spec start() -> ok.
@@ -53,6 +54,17 @@ restart() ->
     stop(),
     start().
 
+create_structures() ->
+    chat:create_room(1),
+    {ok, Room} = c_room:get_room(1),
+    chat:create_user(1,1),
+    chat:create_user(2,2),
+    {ok, User1} = c_user:get_user(1),
+    {ok, User2} = c_user:get_user(2),
+    c_room:add_user(Room,User1),
+    c_room:add_user(Room,User2),
+    {Room, User1, User2}.
+    
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================

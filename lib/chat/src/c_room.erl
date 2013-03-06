@@ -130,8 +130,7 @@ handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=Stat
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({send_message, Upid, Message}, #state{event_manager=Event_manager}=State) ->
-    io:format("test"),
-    Event_manager:notify(Event_manager, {send_message, self(), Upid, Message}),
+    gen_event:notify(Event_manager, {send_message, self(), Upid, Message}),
     {noreply, State};
 
 handle_cast(stop, State) ->
