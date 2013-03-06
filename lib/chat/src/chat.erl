@@ -8,12 +8,13 @@
 %%%-------------------------------------------------------------------
 -module(chat).
 
-
 %% API
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
 	 create_user/0, create_user/2, stop_user/1, get_room_count/0,
-	 get_user_nick/1, get_user_count/0, add_user/2]).
+	 get_user_nick/1, get_user_count/0, add_user/2, a/0]).
 
+a()->
+	io:format("denemea").
 %%%===================================================================
 %%% API
 %%%===================================================================

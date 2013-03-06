@@ -1,14 +1,20 @@
-# See LICENSE for licensing information.
-
 DIALYZER = dialyzer
-REBAR = rebar
+REBAR = ./rebar
 MNESIA_DIR = /tmp/mnesia
 NODE_NAME = dev_node
 
 all: compile
 
-compile: # deps
+init-devdeps:
+	git clone git://github.com/rustyio/sync.git devutils/sync
+	cd devutils/sync; make
+
+compile: compile-devutils
 	@$(REBAR) compile
+
+compile-devutils: 
+	cd devutils/sync; make
+	cd devutils/utils; make
 
 deps:
 	@$(REBAR) get-deps
@@ -43,23 +49,25 @@ shell: compile
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME)
 
+
 start: compile
-	erl -pa lib/*/ebin deps/*/ebin \
-	    -i  lib/*/include deps/*/include \
+	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \
+	    -i  lib/*/include deps/*/include devutils/*/include \
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME) \
 	    -eval "application:start(sasl),\
                    appmon:start(),\
 		   chat:start(),\
-		   http:start()."
+		   http:start(),
+		   sync:go()."
 
 dev: compile
-	erl -pa lib/*/ebin deps/*/ebin \
-	    -i  lib/*/include deps/*/include \
+	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \
+	    -i  lib/*/include deps/*/include devutils/*/include \
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME) \
 	    -eval "application:start(sasl),\
-                   appmon:start(),\
+           appmon:start(),\
 		   chat:start(),\
 		   chat:create_room(1),\
                    {ok, Room} = c_room:get_room(1),\
@@ -68,4 +76,5 @@ dev: compile
 		   {ok, User1} = c_user:get_user(1),\
                    {ok, User2} = c_user:get_user(2),\
                    c_room:add_user(Room,User1),\
-                   c_room:add_user(Room,User2)."
+                   c_room:add_user(Room,User2),\
+           sync:go()."

@@ -75,7 +75,6 @@ stop(Pid) ->
 get_count() ->
     {ok, ets:info(rooms, size)}.
 
-
 add_user(Rpid, Upid) ->
     gen_server:call(Rpid,{add_user, Upid}).
 
