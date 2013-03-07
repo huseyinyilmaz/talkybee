@@ -86,8 +86,13 @@ init([Upid]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_event({send_message, Rpid, Pid, Message}, #state{user=Upid}=State) ->
-    io:format("testtest"),
-    c_user:receive_message(Upid, Pid, Rpid, Message),
+    case Pid of
+        Upid ->
+            ok;
+        _ ->
+           c_user:receive_message(Upid, Pid, Rpid, Message)
+    end,
+
     {ok, State};
 
 handle_event(_Event, State) ->

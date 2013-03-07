@@ -63,6 +63,7 @@ create_structures() ->
     {ok, User2} = c_user:get_user(2),
     c_room:add_user(Room,User1),
     c_room:add_user(Room,User2),
+    c_room:send_message(Room,User1,<<"debug test---------------">>),
     {Room, User1, User2}.
     
 %%%===================================================================

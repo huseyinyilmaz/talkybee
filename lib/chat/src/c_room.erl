@@ -114,9 +114,11 @@ handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State)
     {reply, {ok, Event_manager}, State};
 
 handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
+    c_room_event:add_handler(Event_manager, Upid),
     {reply, {ok, Event_manager}, State};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
+    c_room_event:delete_handler(Event_manager, Upid),
     {reply, {ok, Event_manager}, State}.
 
 %%--------------------------------------------------------------------

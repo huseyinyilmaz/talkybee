@@ -134,8 +134,8 @@ handle_call(get_info, _From, #state{code=Code,
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({receive_message, Pid, Rpid, Message}, State) ->
-    io:format("test xxx ~p , ~p , ~p, ~p" , [Pid, Rpid, Message, State]),
-    {stop, normal, State};
+    io:format("test xxx ~p , ~p , ~p, ~p ~p ~n" , [Pid, Rpid, Message, State, self()]),
+    {noreply, State};
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
