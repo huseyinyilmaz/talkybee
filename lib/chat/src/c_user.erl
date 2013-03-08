@@ -17,11 +17,12 @@
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
-	 terminate/2, code_change/3]).
+	 terminate/2, code_change/3, pop_messages/1, set_handler/2]).
 
 -define(SERVER, ?MODULE). 
 
--record(state, {code, nick}).
+-record(state, {code, nick, handler, messages}).
+-record(message, {user_nick, content}).
 
 %%%===================================================================
 %%% API
@@ -60,6 +61,13 @@ get_code(Pid) ->
 get_info(Pid)->
     gen_server:call(Pid,get_info).
 
+-spec pop_messages(pid()) -> {ok, list()}.
+pop_messages(Pid) ->
+    gen_server:call(Pid, pop_messages).
+
+set_handler(Upid, Hpid) ->
+    gen_server:call(Upid, {set_handler, Hpid}).
+
 -spec stop(pid()) -> ok.
 stop(Pid) ->
     gen_server:cast(Pid,stop),
@@ -87,13 +95,15 @@ receive_message(Topid, Frompid, Roompid, Message) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Code, Nick]) ->
+init([Handler, Code, Nick]) ->
     case get_user(Code) of
 	{ok , _} -> {stop, already_exists};
 	{error, not_found} ->
 	    ets:insert(users, {Code, self()}),
 	    {ok, #state{code=Code,
-			nick=Nick}}
+			nick=Nick,
+            handler=Handler,
+            messages=nil}}
     end.
 
 %%--------------------------------------------------------------------
@@ -121,7 +131,14 @@ handle_call(get_nick, _From, #state{nick=Nick}=State) ->
 handle_call(get_info, _From, #state{code=Code,
 				    nick=Nick}=State) ->
     Reply = {ok, {Code, Nick}},
-    {reply, Reply, State}.
+    {reply, Reply, State};
+
+handle_call(pop_messages, _From, #state{messages=Messages}=State) ->
+    Reply = {ok, Messages},
+    {reply, Reply, State#state{messages=nil}};
+
+handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
+    ok.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -133,7 +150,7 @@ handle_call(get_info, _From, #state{code=Code,
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({receive_message, Pid, Rpid, Message}, State) ->
+handle_cast({receive_message, Pid, Rpid, Message}, #state{messages=Messages}=State) ->
     io:format("test xxx ~p , ~p , ~p, ~p ~p ~n" , [Pid, Rpid, Message, State, self()]),
     {noreply, State};
 
