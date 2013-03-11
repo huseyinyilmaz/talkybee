@@ -11,7 +11,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_child/2]).
+-export([start_link/0, start_child/3]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -31,8 +31,8 @@
 %% @end
 %%--------------------------------------------------------------------
 %% -spec start_child(binary(), binary()) -> {ok, pid} | {error, any()}.
-start_child(Code, Nick) ->
-    Args_to_append = [Code, Nick],
+start_child(Handler, Code, Nick) ->
+    Args_to_append = [Handler, Code, Nick],
     supervisor:start_child(?SERVER, Args_to_append).
 
 %%--------------------------------------------------------------------

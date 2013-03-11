@@ -59,8 +59,8 @@ start_dev() ->
     User2_code = <<"user2">>,
 	
     {ok, Room_code} = chat:create_room(Room_code),
-    {ok, User1_code} = chat:create_user(User1_code, User1_code),
-    {ok, User2_code} = chat:create_user(User2_code, User2_code),
+    {ok, User1_code} = chat:create_user(self(), User1_code, User1_code),
+    {ok, User2_code} = chat:create_user(self(), User2_code, User2_code),
     chat:add_user(Room_code,User1_code),
     chat:add_user(Room_code,User2_code),
     {Room_code, User1_code, User2_code}.

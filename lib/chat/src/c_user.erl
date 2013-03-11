@@ -12,16 +12,18 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %% API
--export([start_link/2, get_user/1, get_nick/1, get_code/1,
-	 get_info/1, get_count/0, stop/1, receive_message/4]).
+-export([start_link/3, get_user/1, get_nick/1, get_code/1,
+	 get_info/1, get_count/0, stop/1, receive_message/4,
+	 pop_messages/1, set_handler/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
-	 terminate/2, code_change/3, pop_messages/1, set_handler/2]).
+	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE). 
 
 -record(state, {code, nick, handler, messages}).
+
 -record(message, {user_nick, content}).
 
 %%%===================================================================
@@ -32,9 +34,9 @@
 %% Starts a new user server
 %% @end
 %%--------------------------------------------------------------------
--spec start_link(binary(), binary()) -> {ok, pid()} | ignore | {error, any()}.
-start_link(Code, Nick) ->
-    gen_server:start_link(?MODULE, [Code, Nick], []).
+-spec start_link(pid(), binary(), binary()) -> {ok, pid()} | ignore | {error, any()}.
+start_link(Handler, Code, Nick) ->
+    gen_server:start_link(?MODULE, [Handler, Code, Nick], []).
 
 get_user(Code) ->    
     case ets:lookup(users, Code) of
@@ -79,7 +81,6 @@ get_count() ->
 
 receive_message(Topid, Frompid, Roompid, Message) ->
     gen_server:cast(Topid, {receive_message, Frompid, Roompid, Message}).
-
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -103,7 +104,7 @@ init([Handler, Code, Nick]) ->
 	    {ok, #state{code=Code,
 			nick=Nick,
             handler=Handler,
-            messages=nil}}
+            messages=[]}}
     end.
 
 %%--------------------------------------------------------------------
@@ -135,10 +136,16 @@ handle_call(get_info, _From, #state{code=Code,
 
 handle_call(pop_messages, _From, #state{messages=Messages}=State) ->
     Reply = {ok, Messages},
-    {reply, Reply, State#state{messages=nil}};
+    {reply, Reply, State#state{messages=[]}};
 
 handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
-    ok.
+   case is_process_alive(Handler) of
+        true ->
+            {reply, {error, handler_is_alive}, State};
+        false ->
+            {reply, ok , State#state{handler=Pid}}
+    end. 
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -150,9 +157,12 @@ handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({receive_message, Pid, Rpid, Message}, #state{messages=Messages}=State) ->
-    io:format("test xxx ~p , ~p , ~p, ~p ~p ~n" , [Pid, Rpid, Message, State, self()]),
-    {noreply, State};
+handle_cast({receive_message, Pid, Rpid, Message}, #state{messages=Messages,
+							  handler=Handler}=State) ->
+    io:format("c_user:receive_message -> handle_cast ~p , ~p , ~p, ~p ~p ~n",
+	      [Pid, Rpid, Message, State, self()]),
+    Handler ! {have_message, self()},
+    {noreply, State#state{messages=[Message|Messages]}};
 
 handle_cast(stop, State) ->
     {stop, normal, State}.

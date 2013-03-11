@@ -10,11 +10,10 @@
 
 %% API
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
-	 create_user/0, create_user/2, stop_user/1, get_room_count/0,
-	 get_user_nick/1, get_user_count/0, add_user/2, a/0]).
+	 create_user/1, create_user/3, stop_user/1, get_room_count/0,
+	 get_user_nick/1, get_user_count/0, add_user/2, send_message/3,
+	 pop_messages/1]).
 
-a()->
-	io:format("denemea").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -64,9 +63,9 @@ create_room(Code) ->
 %% @spec create_room() -> {ok, Room_code}
 %% @end
 %%--------------------------------------------------------------------
-create_user()->
+create_user(Handler)->
     Code = c_utils:generate_code(),
-    create_user(Code, Code).
+    create_user(Handler, Code, Code).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -74,8 +73,8 @@ create_user()->
 %% @spec create_room(Room_code) -> {ok, Room_code}
 %% @end
 %%--------------------------------------------------------------------
-create_user(Code, Nick) ->
-    case c_user_sup:start_child(Code, Nick) of
+create_user(Handler, Code, Nick) ->
+    case c_user_sup:start_child(Handler, Code, Nick) of
 	{ok, Pid} ->
 	    c_user:get_code(Pid);
 	Error -> Error
@@ -160,3 +159,23 @@ add_user(Room_code, User_code) ->
     end.
     
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Sends given room a message by given user
+%% @spec get_user_nick(Room_code, User_code) -> {ok, User_nick}
+%% @end
+%%--------------------------------------------------------------------
+send_message(Room_code, User_code, Message) ->
+	{ok, Rpid} = c_room:get_room(Room_code),
+	{ok, Upid} = c_user:get_user(User_code),
+	c_room:send_message(Rpid, Upid, Message).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Gets given users messages
+%% @spec get_user_nick(Room_code, User_code) -> {ok, User_nick}
+%% @end
+%%--------------------------------------------------------------------
+pop_messages(User_code) ->
+    {ok, Upid} = c_user:get_user(User_code),
+    c_user:pop_messages(Upid).

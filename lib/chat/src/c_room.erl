@@ -79,7 +79,7 @@ add_user(Rpid, Upid) ->
     gen_server:call(Rpid,{add_user, Upid}).
 
 remove_user(Rpid, Upid) ->
-    gen_server:call(Rpid,{add_user, Upid}).
+    gen_server:call(Rpid,{remove_user, Upid}).
     
 send_message(Rpid, Upid, Message) ->
     gen_server:cast(Rpid, {send_message, Upid, Message}).
