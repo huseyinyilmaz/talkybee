@@ -13,7 +13,7 @@ receive_message(Id) ->
 
 
 make_message_receiver(Parent_pid, Id) ->
-	spawn(message_mock, process_mock,[Parent_pid, Id]).
+	spawn(process_mock, process_mock,[Parent_pid, Id]).
 
 process_mock(Parent_pid, Id) ->
 	receive
