@@ -56,8 +56,7 @@ start: compile
 	    -mnesia dir $(MNESIA_DIR) \
 	    -sname $(NODE_NAME) \
 	    -eval "debug:init(),\
-	           debug:start(),\
-	           debug:create_structures()."
+	           debug:start()."
 
 dev: compile
 	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \
