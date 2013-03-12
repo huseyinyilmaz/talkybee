@@ -13,3 +13,4 @@ talkybee.sublime-project
 talkybee.sublime-workspace
 *.dump
 /devutils/sync
+/www/js/bullet

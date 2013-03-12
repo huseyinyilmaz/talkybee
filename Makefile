@@ -19,6 +19,10 @@ compile-devutils:
 deps:
 	@$(REBAR) get-deps
 
+collect-static:
+	mkdir www/js/bullet
+	cp deps/bullet/priv/bullet.js www/js/bullet/
+
 clean:
 	@$(REBAR) clean
 	rm -f test/*.beam
