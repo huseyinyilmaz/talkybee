@@ -8,7 +8,7 @@
 -export([info/3]).
 -export([terminate/2]).
 
--define(PERIOD, 1000).
+-define(PERIOD, 100000).
 
 init(_Transport, Req, _Opts, _Active) ->
 	io:format("bullet init~n"),
@@ -20,8 +20,10 @@ stream(<<"ping">>, Req, State) ->
 	{reply, <<"pong">>, Req, State};
 
 stream(Data, Req, State) ->
-	io:format("astream received ~s~n", [Data]),
-	{ok, Req, State}.
+    io:format("Data before conversation ~p~n", [Data]),
+    Json = jiffy:decode(Data),
+    io:format("astream received ~p~n", [Json]),
+    {ok, Req, State}.
 
 info(refresh, Req, State) ->
 	_ = erlang:send_after(?PERIOD, self(), refresh),

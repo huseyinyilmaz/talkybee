@@ -7,6 +7,8 @@ $(function(){
     var chatApp = {};
     window.chatApp = chatApp;
 
+    var chatClient = window.chatClient;
+
     ////////////
     // Models //
     ////////////
@@ -40,31 +42,21 @@ $(function(){
     Backbone.history.start();
 
 
-
-    
-    ////////////////////
-    // Server adapter //
-    ////////////////////
-    var bullet = $.bullet('ws://localhost:8080/bullet');
-    chatApp.bullet = bullet;
-    bullet.onopen = function(){
-	console.log('onopen');
-	$('#status').text('online');
-    };
-    bullet.ondisconnect = function(){
-	console.log('ondisconnect');
-	$('#status').text('offline');
-    };
-    bullet.onmessage = function(e){
-	console.log('onmessage');
-	if (e.data != 'pong'){
-	    $('#time').text(e.data);
-	}
-    };
-    bullet.onheartbeat = function(){
-	console.log('ping');
-	bullet.send('ping');
-    };
-
+    //connect to server events
+    chatClient.on('onopen',
+		  function(){$('#status').text('online');},
+		  chatClient);
+    chatClient.on('ondisconnect',
+		  function(){$('#status').text('offline');},
+		  chatClient);
+    chatClient.on('onmessage',
+		  function(e){console.log('onmessage = ' + e.data);
+			      if (e.data != 'pong'){
+				  $('#time').text(e.data);}},
+		  chatClient);
+    chatClient.on('onheartbeat',
+		  function(){console.log('ping');
+			     this.bullet.send('ping');},
+		  chatClient);
 
 });
