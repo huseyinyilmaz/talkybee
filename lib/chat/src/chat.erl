@@ -10,9 +10,9 @@
 
 %% API
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
-	 create_user/1, create_user/3, stop_user/1, get_room_count/0,
-	 get_user_nick/1, get_user_count/0, add_user/2, send_message/3,
-	 pop_messages/1]).
+	 create_user/1, create_user/2, create_user/3, stop_user/1,
+	 get_room_count/0, get_user_nick/1, get_user_count/0, add_user/2,
+	 remove_user/2, send_message/3, pop_messages/1]).
 
 %%%===================================================================
 %%% API
@@ -59,13 +59,23 @@ create_room(Code) ->
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Creates a new room
-%% @spec create_room() -> {ok, Room_code}
+%% Creates a new user
+%% @spec create_user(Handler) -> {ok, Room_code}
 %% @end
 %%--------------------------------------------------------------------
 create_user(Handler)->
     Code = c_utils:generate_code(),
     create_user(Handler, Code, Code).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Creates a new user
+%% @spec create_user(Handler) -> {ok, Room_code}
+%% @end
+%%--------------------------------------------------------------------
+create_user(Handler, Nick)->
+    Code = c_utils:generate_code(),
+    create_user(Handler, Code, Nick).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -157,7 +167,23 @@ add_user(Room_code, User_code) ->
 	    end;
 	Error -> Error
     end.
-    
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Adds given user to given room
+%% @spec remove_user_nick(Room_code, User_code) -> {ok, User_nick}
+%% @end
+%%--------------------------------------------------------------------
+remove_user(Room_code, User_code) ->
+    case c_room:get_room(Room_code) of
+	{ok, Rpid} ->
+	    case c_user:get_user(User_code) of
+		{ok, Upid} -> c_room:remove_user(Rpid, Upid);
+		Error -> Error
+	    end;
+	Error -> Error
+    end.
+
 
 %%--------------------------------------------------------------------
 %% @doc

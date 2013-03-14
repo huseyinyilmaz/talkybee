@@ -1,9 +1,19 @@
 $(function(){
     // Create chat client 
     var chatClient = {
+	connect_to_room: function(room_code,
+				  user_code,
+				  user_nick){
+	    
+	    this.send_message({type: 'connect_to_room',
+			       room_code: room_code,
+			       user_code: user_code,
+			       user_nick: user_nick});
+	},
 	send_message: function(obj){
-	    console.log("sending="+JSON.stringify(obj));
-	    this.bullet.send(JSON.stringify(obj));
+	    var json_string = JSON.stringify(obj);
+	    console.log("sending="+ json_string);
+	    this.bullet.send(json_string);
 	}
     };
     //Make chatClient an event Handler

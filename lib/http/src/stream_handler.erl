@@ -19,17 +19,18 @@ stream(<<"ping">>, Req, State) ->
 	io:format("ping received~n"),
 	{reply, <<"pong">>, Req, State};
 
-stream(Data, Req, State) ->
-    io:format("Data before conversation ~p~n", [Data]),
-    Json = jiffy:decode(Data),
-    io:format("astream received ~p~n", [Json]),
-    {ok, Req, State}.
+stream(Raw_data, Req, State) ->
+    io:format("Data before conversation ~p~n", [Raw_data]),
+    Data = jiffy:decode(Raw_data),
+    io:format("A stream received ~p~n", [Data]),
+    h_chat_adapter:handle_request(Data, Req, State).
 
 info(refresh, Req, State) ->
 	_ = erlang:send_after(?PERIOD, self(), refresh),
 	DateTime = cowboy_clock:rfc1123(),
 	io:format("clock refresh timeout: ~s~n", [DateTime]),
 	{reply, DateTime, Req, State};
+
 info(Info, Req, State) ->
 	io:format("info received ~p~n", [Info]),
 	{ok, Req, State}.

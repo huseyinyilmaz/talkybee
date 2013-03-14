@@ -1,10 +1,12 @@
-
 $(function(){
     console.log('chat.js');
     //////////////////////
     // Create namespace //
     //////////////////////
-    var chatApp = {};
+    var chatApp = {
+	user_code: '',
+	user_nick: ''};
+    
     window.chatApp = chatApp;
 
     var chatClient = window.chatClient;
@@ -32,10 +34,16 @@ $(function(){
 	    '': 'init',
 	    ':room_code': 'start_room'},
 	init: function(){
-	    console.log('router.init');
+	    this.start_room('');
 	},
 	start_room: function(room_code){
-	    console.log('start_room ' + room_code);
+	    // Wait for dom and bullet to initialize
+	    setTimeout(function(){
+		console.log('start_room ' + room_code);
+		chatClient.connect_to_room(room_code,
+					   chatApp.user_code,
+					   chatApp.user_nick);},
+		       1000);
 	}
     });
     chatApp.router = new chatApp.Router();
