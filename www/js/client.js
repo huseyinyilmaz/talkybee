@@ -11,8 +11,9 @@ $(function(){
 			       user_nick: user_nick});
 	},
 	send_message: function(obj){
+	    if(enable_logging && console)
+		console.log('request', obj);
 	    var json_string = JSON.stringify(obj);
-	    console.log("sending="+ json_string);
 	    this.bullet.send(json_string);
 	}
     };

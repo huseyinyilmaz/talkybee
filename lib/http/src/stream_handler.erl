@@ -11,30 +11,30 @@
 -define(PERIOD, 100000).
 
 init(_Transport, Req, _Opts, _Active) ->
-	io:format("bullet init~n"),
-	_ = erlang:send_after(?PERIOD, self(), refresh),
-	{ok, Req, undefined}.
+    error_logger:info_report("Initializing bullet handler"),
+    _ = erlang:send_after(?PERIOD, self(), refresh),
+    {ok, Req, undefined}.
 
 stream(<<"ping">>, Req, State) ->
-	io:format("ping received~n"),
-	{reply, <<"pong">>, Req, State};
+    error_logger:info_report(ping_received),
+    {reply, <<"pong">>, Req, State};
 
 stream(Raw_data, Req, State) ->
-    io:format("Data before conversation ~p~n", [Raw_data]),
+    error_logger:info_report({raw_request, Raw_data}),
     Data = jiffy:decode(Raw_data),
-    io:format("A stream received ~p~n", [Data]),
+    error_logger:info_report({processed_request, Data}),
     h_chat_adapter:handle_request(Data, Req, State).
 
 info(refresh, Req, State) ->
-	_ = erlang:send_after(?PERIOD, self(), refresh),
-	DateTime = cowboy_clock:rfc1123(),
-	io:format("clock refresh timeout: ~s~n", [DateTime]),
-	{reply, DateTime, Req, State};
+    _ = erlang:send_after(?PERIOD, self(), refresh),
+    DateTime = cowboy_clock:rfc1123(),
+    error_logger:info_report({clock_refresh_timeout, DateTime}),
+    {reply, DateTime, Req, State};
 
 info(Info, Req, State) ->
-	io:format("info received ~p~n", [Info]),
-	{ok, Req, State}.
+    error_logger:info_report({info_received, Info}),
+    {ok, Req, State}.
 
 terminate(_Req, _State) ->
-	io:format("bullet terminate~n"),
-	ok.
+    error_logger:info_report(terminate_bullet_handler),
+    ok.

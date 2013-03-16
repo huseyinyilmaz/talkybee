@@ -1,5 +1,5 @@
 $(function(){
-    console.log('chat.js');
+    window.enable_logging = true;
     //////////////////////
     // Create namespace //
     //////////////////////
@@ -39,7 +39,6 @@ $(function(){
 	start_room: function(room_code){
 	    // Wait for dom and bullet to initialize
 	    setTimeout(function(){
-		console.log('start_room ' + room_code);
 		chatClient.connect_to_room(room_code,
 					   chatApp.user_code,
 					   chatApp.user_nick);},
@@ -58,13 +57,26 @@ $(function(){
 		  function(){$('#status').text('offline');},
 		  chatClient);
     chatClient.on('onmessage',
-		  function(e){console.log('onmessage = ' + e.data);
-			      if (e.data != 'pong'){
-				  $('#time').text(e.data);}},
+		  function(e){
+		      var data = JSON.parse(e.data);
+		      if(enable_logging && console)
+			  console.log('response', data);
+		      switch(data.type){
+			  case 'heartbeat':
+			  break;
+			  case 'connected_to_room':
+			  chatApp.room_code = data.room_code;
+			  chatApp.user_code = data.user_code;
+			  chatApp.user_nick = data.user_nick;
+			  $("#text").text(chatApp.user_code + ' ' + chatApp.user_nick);
+			  
+			  break;
+		      };
+		  },
 		  chatClient);
+    
     chatClient.on('onheartbeat',
-		  function(){console.log('ping');
-			     this.bullet.send('ping');},
+		  function(){this.send_message({type:'heartbeat', value:'ping'});},
 		  chatClient);
 
 });
