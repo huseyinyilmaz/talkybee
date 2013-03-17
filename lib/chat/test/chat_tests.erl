@@ -83,8 +83,8 @@ message_test_() ->
 	    {ok, User2_pid} = c_user:get_user(User2_code),
 	    
 	    %% Add users to room
-	    ?assertMatch({ok , _} , chat:add_user(Room_code, User1_code)),
-	    ?assertMatch({ok, _} , chat:add_user(Room_code, User2_code)),
+	    ?assertEqual(ok, chat:add_user(Room_code, User1_code)),
+	    ?assertEqual(ok, chat:add_user(Room_code, User2_code)),
 
 	    %% send message
 	    Msg1 = <<"Message1">>,

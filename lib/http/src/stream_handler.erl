@@ -12,12 +12,7 @@
 
 init(_Transport, Req, _Opts, _Active) ->
     error_logger:info_report("Initializing bullet handler"),
-    _ = erlang:send_after(?PERIOD, self(), refresh),
     {ok, Req, undefined}.
-
-stream(<<"ping">>, Req, State) ->
-    error_logger:info_report(ping_received),
-    {reply, <<"pong">>, Req, State};
 
 stream(Raw_data, Req, State) ->
     error_logger:info_report({raw_request, Raw_data}),
@@ -25,16 +20,14 @@ stream(Raw_data, Req, State) ->
     error_logger:info_report({processed_request, Data}),
     h_chat_adapter:handle_request(Data, Req, State).
 
-info(refresh, Req, State) ->
-    _ = erlang:send_after(?PERIOD, self(), refresh),
-    DateTime = cowboy_clock:rfc1123(),
-    error_logger:info_report({clock_refresh_timeout, DateTime}),
-    {reply, DateTime, Req, State};
+info(Data, Req, State) ->
+    error_logger:info_report({info, Data}),
+    h_chat_adapter:handle_info(Data, Req, State).
 
-info(Info, Req, State) ->
-    error_logger:info_report({info_received, Info}),
-    {ok, Req, State}.
-
-terminate(_Req, _State) ->
+terminate(_Req, State) ->
     error_logger:info_report(terminate_bullet_handler),
-    ok.
+    case State of
+	undefined -> ok;
+	User_code -> chat:stop_user(User_code)
+    end.
+

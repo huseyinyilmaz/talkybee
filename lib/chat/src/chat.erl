@@ -12,7 +12,7 @@
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
 	 create_user/1, create_user/2, create_user/3, stop_user/1,
 	 get_room_count/0, get_user_nick/1, get_user_count/0, add_user/2,
-	 remove_user/2, send_message/3, pop_messages/1]).
+	 remove_user/2, send_message/3, pop_messages/1, introduce_user/2]).
 
 %%%===================================================================
 %%% API
@@ -111,6 +111,7 @@ stop_room(Code) ->
 %% @end
 %%--------------------------------------------------------------------
 stop_user(Code) ->
+    error_logger:info_report({chat__stop_user, Code}),
     case c_user:get_user(Code) of
 	{ok, Pid} ->
 	    c_user:stop(Pid);
@@ -151,7 +152,6 @@ get_user_nick(Code) ->
     end.
 
 
-
 %%--------------------------------------------------------------------
 %% @doc
 %% Adds given user to given room
@@ -184,6 +184,23 @@ remove_user(Room_code, User_code) ->
 	Error -> Error
     end.
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Sends info request to all users in the Room with users
+%% own information.
+%% All users will return their info to given user
+%% @end
+%%--------------------------------------------------------------------
+-spec introduce_user(binary(), binary()) -> ok.
+introduce_user(Room_code, User_code) ->
+    case c_room:get_room(Room_code) of
+	{ok, Rpid} ->
+	    case c_user:get_user(User_code) of
+		{ok, Upid} -> c_room:introduce_user(Rpid, Upid);
+		Error -> Error
+	    end;
+	Error -> Error
+    end.
 
 %%--------------------------------------------------------------------
 %% @doc

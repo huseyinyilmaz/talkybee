@@ -14,7 +14,8 @@
 %% API
 -export([start_link/3, get_user/1, get_nick/1, get_code/1,
 	 get_info/1, get_count/0, stop/1, receive_message/4,
-	 pop_messages/1, set_handler/2]).
+	 pop_messages/1, set_handler/2, introduce_user/2,
+	 exchange_info/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -81,6 +82,13 @@ get_count() ->
 
 receive_message(Topid, Frompid, Roompid, Message) ->
     gen_server:cast(Topid, {receive_message, Frompid, Roompid, Message}).
+
+introduce_user(Pid, Upid) ->
+    gen_server:cast(Pid, {introduce_user, Upid}).
+
+exchange_info(Pid,{Code, Nick}) ->
+    gen_server:call(Pid,{exchange_info, Code, Nick}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -144,7 +152,15 @@ handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
             {reply, {error, handler_is_alive}, State};
         false ->
             {reply, ok , State#state{handler=Pid}}
-    end. 
+    end;
+
+handle_call({exchange_info, User_code, User_nick},
+	    _From,
+	    #state{code=Code,
+		   nick=Nick,
+		   handler=Handler}=State) ->
+    Handler ! {user_data, User_code, User_nick},
+    {reply, {ok, {Code, Nick}}, State}. 
 
 
 %%--------------------------------------------------------------------
@@ -163,6 +179,13 @@ handle_cast({receive_message, Pid, Rpid, Message}, #state{messages=Messages,
 	      [Pid, Rpid, Message, State, self()]),
     Handler ! {have_message, self()},
     {noreply, State#state{messages=[Message|Messages]}};
+
+handle_cast({introduce_user, Pid}, #state{code=Code,
+				     nick=Nick,
+				     handler=Handler}=State) ->
+    {ok, {User_code, User_nick}} = c_user:exchange_info(Pid,{Code, Nick}),
+    Handler ! {user_data, User_code, User_nick},
+    {noreply, State};
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
