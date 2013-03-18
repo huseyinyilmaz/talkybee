@@ -170,7 +170,7 @@ add_user(Room_code, User_code) ->
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Adds given user to given room
+%% Removes given user from given room
 %% @spec remove_user_nick(Room_code, User_code) -> {ok, User_nick}
 %% @end
 %%--------------------------------------------------------------------

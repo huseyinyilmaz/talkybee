@@ -24,7 +24,9 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
 		 {<<"room_code">>, Client_room_code},
 		 {<<"user_code">>, Client_user_code},
 		 {<<"user_nick">>, Client_user_nick}]},
-	       Req, State)->
+	       Req, _State)->
+    %% TODO We should make sure that if _State is available
+    %% it is same with Client_room_code
     error_logger:info_report({client_user_nick, Client_user_nick}),
     %% Make sure that a room is ready for this session
     %% {ok, Code}|{error, already_exists}
@@ -40,6 +42,7 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
 	_ ->
 	    %% Stop old user
 	    error_logger:info_report({stop_old_user, Client_user_code}),
+	    chat:remove_user(Client_room_code, Client_user_code),
 	    chat:stop_user(Client_user_code)
     end,
     
@@ -57,7 +60,6 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
     {ok, User_nick} = chat:get_user_nick(User_code),
     %% Add User to room
     ok = chat:add_user(Room_code, User_code),
-    ok = chat:introduce_user(Room_code, User_code),
     Raw_result = {[{<<"type">>,<<"connected_to_room">>},
 			    {<<"room_code">>, Room_code},
 			    {<<"user_code">>, User_code},

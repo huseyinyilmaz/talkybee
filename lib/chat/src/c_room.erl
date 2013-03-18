@@ -13,8 +13,7 @@
 %% API
 -export([start_link/1, get_code/1, get_room/1,
 	 get_event_manager/1, get_count/0, stop/1,
-	 add_user/2, remove_user/2, send_message/3,
-	 introduce_user/2]).
+	 add_user/2, remove_user/2, send_message/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -77,7 +76,9 @@ get_count() ->
     {ok, ets:info(rooms, size)}.
 
 add_user(Rpid, Upid) ->
-    gen_server:call(Rpid,{add_user, Upid}).
+    {ok, Result} = gen_server:call(Rpid,{add_user, Upid}),
+    ok = gen_server:cast(Rpid, {introduce_user, Upid}),
+    {ok, Result}.
 
 remove_user(Rpid, Upid) ->
     gen_server:call(Rpid,{remove_user, Upid}).
@@ -85,8 +86,6 @@ remove_user(Rpid, Upid) ->
 send_message(Rpid, Upid, Message) ->
     gen_server:cast(Rpid, {send_message, Upid, Message}).
 
-introduce_user(Pid, Upid) ->
-    gen_server:cast(Pid, {introduce_user, Upid}).
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -118,10 +117,13 @@ handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State)
 
 handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
     c_room_event:add_handler(Event_manager, Upid),
+    gen_event:notify(Event_manager, {introduce_user, Upid}),
     {reply, ok, State};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
     c_room_event:delete_handler(Event_manager, Upid),
+    {ok, Code} = c_user:get_code(Upid),
+    c_room_event:notify(Event_manager,{remove_user, Code}),
     {reply, {ok, Event_manager}, State}.
 
 %%--------------------------------------------------------------------
@@ -136,9 +138,6 @@ handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=Stat
 %%--------------------------------------------------------------------
 handle_cast({send_message, Upid, Message}, #state{event_manager=Event_manager}=State) ->
     gen_event:notify(Event_manager, {send_message, self(), Upid, Message}),
-    {noreply, State};
-handle_cast({introduce_user, Upid}, #state{event_manager=Event_manager}=State) ->
-    gen_event:notify(Event_manager, {introduce_user, Upid}),
     {noreply, State};
 handle_cast(stop, State) ->
     {stop, normal, State}.
