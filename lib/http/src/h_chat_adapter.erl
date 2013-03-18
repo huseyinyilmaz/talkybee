@@ -90,5 +90,11 @@ handle_info({user_data, Code, Nick}, Req, State) ->
 			    {<<"user_code">>, Code},
 			    {<<"user_nick">>, Nick}
 			   ]}),
+    {reply, Result, Req, State};
+handle_info({user_removed, Code}, Req, State) ->
+    Result = jiffy:encode({[{<<"type">>,<<"user_removed">>},
+			    {<<"user_code">>, Code}
+			   ]}),
     {reply, Result, Req, State}.
+
 

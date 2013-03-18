@@ -63,9 +63,9 @@ get_room(Code) ->
 	    case is_process_alive(Pid) of
 		true -> {ok, Pid};
 		false -> ets:delete(rooms, Code),
-			 {error, not_found}
+			 {stop, not_found}
 	    end;
-        []           -> {error, not_found}
+        []           -> {stop, not_found}
     end.
 
 stop(Pid) ->
@@ -76,9 +76,8 @@ get_count() ->
     {ok, ets:info(rooms, size)}.
 
 add_user(Rpid, Upid) ->
-    {ok, Result} = gen_server:call(Rpid,{add_user, Upid}),
-    ok = gen_server:cast(Rpid, {introduce_user, Upid}),
-    {ok, Result}.
+    ok = gen_server:call(Rpid,{add_user, Upid}),
+    ok = gen_server:cast(Rpid, {introduce_user, Upid}).
 
 remove_user(Rpid, Upid) ->
     gen_server:call(Rpid,{remove_user, Upid}).
@@ -100,7 +99,7 @@ send_message(Rpid, Upid, Message) ->
 init([Code]) ->
     case get_room(Code) of
 	{ok , _} -> {stop, already_exists};
-	{error, not_found} ->
+	{stop, not_found} ->
 	    {ok, Event_manager} = c_room_event:start_link(),
 	    ets:insert(rooms, {Code, self()}),
 	    {ok, #state{code=Code,
@@ -121,9 +120,9 @@ handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) 
     {reply, ok, State};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
-    c_room_event:delete_handler(Event_manager, Upid),
     {ok, Code} = c_user:get_code(Upid),
-    c_room_event:notify(Event_manager,{remove_user, Code}),
+    gen_event:notify(Event_manager,{user_removed, Code}),
+    c_room_event:delete_handler(Event_manager, Upid),
     {reply, {ok, Event_manager}, State}.
 
 %%--------------------------------------------------------------------

@@ -101,7 +101,15 @@ handle_event({introduce_user, Pid}, #state{user=Upid}=State) ->
     c_user:introduce_user(Upid, Pid),
     {ok, State};
 
-handle_event(_Event, State) ->
+handle_event({Upid, _}, #state{user=Upid}=State) ->
+    {ok, State};
+
+handle_event({_Sender, Msg}, #state{user=Upid}=State) ->
+    c_user:get_message(Upid, Msg),
+    {ok, State};
+
+handle_event(Msg, #state{user=Upid}=State) ->
+    c_user:get_message(Upid, Msg),
     {ok, State}.
 
 %%--------------------------------------------------------------------

@@ -15,7 +15,7 @@
 -export([start_link/3, get_user/1, get_nick/1, get_code/1,
 	 get_info/1, get_count/0, stop/1, receive_message/4,
 	 pop_messages/1, set_handler/2, introduce_user/2,
-	 exchange_info/2]).
+	 exchange_info/2, get_message/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -73,8 +73,7 @@ set_handler(Upid, Hpid) ->
 
 -spec stop(pid()) -> ok.
 stop(Pid) ->
-    gen_server:cast(Pid,stop),
-    ok.
+    gen_server:cast(Pid, stop).
 
 -spec get_count() -> {ok, integer()}.
 get_count() ->
@@ -89,6 +88,9 @@ introduce_user(Pid, Upid) ->
 exchange_info(Pid,{Code, Nick}) ->
     gen_server:call(Pid,{exchange_info, Code, Nick}).
 
+get_message(Pid, Message) ->
+    gen_server:cast(Pid, Message).
+				  
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -187,8 +189,13 @@ handle_cast({introduce_user, Pid}, #state{code=Code,
     Handler ! {user_data, User_code, User_nick},
     {noreply, State};
 
+handle_cast({user_removed, Code}, #state{handler=Handler}=State) ->
+    Handler ! {user_removed, Code},
+    {noreply, State};
+	    
 handle_cast(stop, State) ->
     {stop, normal, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
