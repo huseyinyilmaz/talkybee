@@ -13,7 +13,7 @@
 
 %% API
 -export([start_link/3, get_user/1, get_nick/1, get_code/1,
-	 get_info/1, get_count/0, stop/1, receive_message/4,
+	 get_info/1, get_count/0, stop/1, receive_message/2,
 	 pop_messages/1, set_handler/2, introduce_user/2,
 	 exchange_info/2, get_message/2]).
 
@@ -79,8 +79,16 @@ stop(Pid) ->
 get_count() ->
     {ok, ets:info(user, size)}.
 
-receive_message(Topid, Frompid, Roompid, Message) ->
-    gen_server:cast(Topid, {receive_message, Frompid, Roompid, Message}).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% User with given Pid receives given message.
+%% Message here is not necessarily a chat message. It is any erlang
+%% message that this user can get. Like removed_user_notification
+%% @end
+%%--------------------------------------------------------------------
+receive_message(Pid, Msg) ->
+    gen_server:cast(Pid, {receive_message, Msg}).
 
 introduce_user(Pid, Upid) ->
     gen_server:cast(Pid, {introduce_user, Upid}).
@@ -159,9 +167,8 @@ handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
 handle_call({exchange_info, User_code, User_nick},
 	    _From,
 	    #state{code=Code,
-		   nick=Nick,
-		   handler=Handler}=State) ->
-    Handler ! {user_data, User_code, User_nick},
+		   nick=Nick}=State) ->
+    receive_message(self(), {user_data, User_code, User_nick}),
     {reply, {ok, {Code, Nick}}, State}. 
 
 
@@ -175,24 +182,31 @@ handle_call({exchange_info, User_code, User_nick},
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({receive_message, Pid, Rpid, Message}, #state{messages=Messages,
-							  handler=Handler}=State) ->
-    io:format("c_user:receive_message -> handle_cast ~p , ~p , ~p, ~p ~p ~n",
-	      [Pid, Rpid, Message, State, self()]),
-    Handler ! {have_message, self()},
-    {noreply, State#state{messages=[Message|Messages]}};
 
-handle_cast({introduce_user, Pid}, #state{code=Code,
-				     nick=Nick,
-				     handler=Handler}=State) ->
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Special case of message that initiates user_handshake
+%%
+%% @end
+%%--------------------------------------------------------------------
+handle_cast({receive_message, {user_handshake, Pid}}, State)
+  when Pid==self()->
+    %% Do not handshake yourself
+    {noreply, State};
+handle_cast({receive_message, {user_handshake, Pid}},
+	    #state{code=Code, nick=Nick}=State) ->
     {ok, {User_code, User_nick}} = c_user:exchange_info(Pid,{Code, Nick}),
-    Handler ! {user_data, User_code, User_nick},
+    receive_message(self(), {user_data, User_code, User_nick}),
     {noreply, State};
 
-handle_cast({user_removed, Code}, #state{handler=Handler}=State) ->
-    Handler ! {user_removed, Code},
-    {noreply, State};
-	    
+handle_cast({receive_message, Message},
+	    #state{messages=Messages,
+		   handler=Handler}=State) ->
+    error_logger:info_report({message_received, Message}),
+    send_msg_notification(Handler),
+    {noreply, State#state{messages=[Message|Messages]}};
+	     
 handle_cast(stop, State) ->
     {stop, normal, State}.
 
@@ -238,3 +252,13 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+%%--------------------------------------------------------------------
+%% @private
+%% @doc
+%% Sends user data to handler
+%%
+%% @spec code_change(OldVsn, State, Extra) -> {ok, NewState}
+%% @end
+%%--------------------------------------------------------------------
+send_msg_notification(Handler)->
+    Handler ! {have_message, self()}.

@@ -13,7 +13,7 @@
 %% API
 -export([start_link/1, get_code/1, get_room/1,
 	 get_event_manager/1, get_count/0, stop/1,
-	 add_user/2, remove_user/2, send_message/3]).
+	 add_user/2, remove_user/2, broadcast/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -82,8 +82,8 @@ add_user(Rpid, Upid) ->
 remove_user(Rpid, Upid) ->
     gen_server:call(Rpid,{remove_user, Upid}).
     
-send_message(Rpid, Upid, Message) ->
-    gen_server:cast(Rpid, {send_message, Upid, Message}).
+broadcast(Rpid, Message) ->
+    gen_server:cast(Rpid, {broadcast, Message}).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -135,8 +135,8 @@ handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=Stat
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({send_message, Upid, Message}, #state{event_manager=Event_manager}=State) ->
-    gen_event:notify(Event_manager, {send_message, self(), Upid, Message}),
+handle_cast({broadcast, Message}, #state{event_manager=Event_manager}=State) ->
+    gen_event:notify(Event_manager, {Message}),
     {noreply, State};
 handle_cast(stop, State) ->
     {stop, normal, State}.

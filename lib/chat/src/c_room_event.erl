@@ -85,31 +85,8 @@ init([Upid]) ->
 %%                          remove_handler
 %% @end
 %%--------------------------------------------------------------------
-handle_event({send_message, _, Upid, _}, #state{user=Upid}=State) ->
-    %% Do not send message to itself Upid = Pid
-    {ok, State};
-
-handle_event({send_message, Rpid, Pid, Message}, #state{user=Upid}=State) ->
-    c_user:receive_message(Upid, Pid, Rpid, Message),
-    {ok, State};
-
-handle_event({introduce_user, Upid}, #state{user=Upid}=State) ->
-    %% Do not send message to itself.
-    {ok, State};
-
-handle_event({introduce_user, Pid}, #state{user=Upid}=State) ->
-    c_user:introduce_user(Upid, Pid),
-    {ok, State};
-
-handle_event({Upid, _}, #state{user=Upid}=State) ->
-    {ok, State};
-
-handle_event({_Sender, Msg}, #state{user=Upid}=State) ->
-    c_user:get_message(Upid, Msg),
-    {ok, State};
-
-handle_event(Msg, #state{user=Upid}=State) ->
-    c_user:get_message(Upid, Msg),
+handle_event(Message, #state{user=Upid}=State) ->
+    c_user:receive_message(Upid, Message),
     {ok, State}.
 
 %%--------------------------------------------------------------------
