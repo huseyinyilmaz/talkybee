@@ -54,7 +54,7 @@ create_room(Code) ->
     case c_room_sup:start_child(Code) of
 	{ok, Pid} ->
 	    c_room:get_code(Pid);
-	Error -> Error
+	{error, Error} -> {stop, Error}
     end.
 
 %%--------------------------------------------------------------------
@@ -210,8 +210,7 @@ introduce_user(Room_code, User_code) ->
 %%--------------------------------------------------------------------
 send_message(Room_code, User_code, Message) ->
 	{ok, Rpid} = c_room:get_room(Room_code),
-	{ok, Upid} = c_user:get_user(User_code),
-	c_room:send_message(Rpid, Upid, Message).
+	c_room:send_message(Rpid, User_code, Message).
 
 %%--------------------------------------------------------------------
 %% @doc

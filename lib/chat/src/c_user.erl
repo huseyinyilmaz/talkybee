@@ -190,6 +190,9 @@ handle_call({exchange_info, User_code, User_nick},
 %%
 %% @end
 %%--------------------------------------------------------------------
+%% user_handshake
+%% user_removed
+%% 
 handle_cast({receive_message, {user_handshake, Pid}}, State)
   when Pid==self()->
     %% Do not handshake yourself

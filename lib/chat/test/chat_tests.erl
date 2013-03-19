@@ -12,10 +12,10 @@ room_test_() ->
 	    Code = <<"test_code">>,
 	    {ok, Room_code} = chat:create_room(),
 	    ?assertEqual({ok, Code}, chat:create_room(Code)),
-	    ?assertEqual({error, already_exists}, chat:create_room(Code)),
+	    ?assertEqual({stop, already_exists}, chat:create_room(Code)),
 	    ?assertEqual(ok, chat:stop_room(Room_code)),
 	    ?assertEqual(ok, chat:stop_room(Code)),
-	    {error, not_found} = chat:stop_room(<<"invalid_name">>)
+	    ?assertEqual({stop, not_found}, chat:stop_room(<<"invalid_name">>))
 	end)}
     }.
 
@@ -85,6 +85,8 @@ message_test_() ->
 	    %% Add users to room
 	    ?assertEqual(ok, chat:add_user(Room_code, User1_code)),
 	    ?assertEqual(ok, chat:add_user(Room_code, User2_code)),
+	    %% give time to complete handshake
+ 	    timer:sleep(20),
 
 	    %% send message
 	    Msg1 = <<"Message1">>,
@@ -95,10 +97,16 @@ message_test_() ->
 	    chat:send_message(Room_code, User2_code, Msg2),
 	    ?assertEqual({ok, {have_message, User1_pid}},
 			 process_mock:receive_message(handler1)),
+	    %% Give time to publish messages
+ 	    timer:sleep(20),
 	    %% Check messages
-	    ?assertEqual({ok, [Msg2]},
+	    ?assertEqual({ok, [{message, User2_code, Msg2},
+			       {message, User1_code, Msg1},
+			       {user_data, User2_code, User2_code}]},
 			 chat:pop_messages(User1_code)),
-	    ?assertEqual({ok, [Msg1]},
+	    ?assertEqual({ok, [{message, User2_code, Msg2},
+			       {message, User1_code, Msg1},
+			       {user_data, User1_code, User1_code}]},
 			 chat:pop_messages(User2_code)),
 	    %% Second calls will be empty
 	    ?assertEqual({ok, []},
