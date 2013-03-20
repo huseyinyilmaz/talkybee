@@ -20,10 +20,11 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE). 
-
+-define(TIMEOUT, 10000).
 -record(state, {code,
 		event_manager}).
 
+-include("c_room_event.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -85,7 +86,8 @@ publish(Rpid, Message) ->
     gen_server:cast(Rpid, {publish, Message}).
 
 send_message(Rpid, Code, Message) ->
-    publish(Rpid, {message, Code, Message}).
+    publish(Rpid, #message{code=Code,
+			   message=Message}).
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -103,27 +105,29 @@ init([Code]) ->
 	{stop, not_found} ->
 	    {ok, Event_manager} = c_room_event:start_link(),
 	    ets:insert(rooms, {Code, self()}),
-	    {ok, #state{code=Code,
-			event_manager=Event_manager}}
+	    {ok,
+	     #state{code=Code,
+		    event_manager=Event_manager},
+	    ?TIMEOUT}
     end.
 
 handle_call(get_code, _From, #state{code=Code}=State) ->
-    {reply, {ok, Code}, State};
+    {reply, {ok, Code}, State, ?TIMEOUT};
 
 handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State) ->
-    {reply, {ok, Event_manager}, State};
+    {reply, {ok, Event_manager}, State, ?TIMEOUT};
 
 handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
     c_room_event:add_handler(Event_manager, Upid),
-    publish(self(), {user_handshake, Upid}),
-    {reply, ok, State};
+    publish(self(), #user_handshake{pid=Upid}),
+    {reply, ok, State, ?TIMEOUT};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
     {ok, Code} = c_user:get_code(Upid),
-    
-    publish(self(), {user_removed, Code}),
+    error_logging:info_report({xxxxxxxxxxxxxxxx_remove_user, Code}),
+    publish(self(), #user_removed{code=Code}),
     c_room_event:delete_handler(Event_manager, Upid),
-    {reply, {ok, Event_manager}, State}.
+    {reply, {ok, Event_manager}, State, ?TIMEOUT}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -137,7 +141,7 @@ handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=Stat
 %%--------------------------------------------------------------------
 handle_cast({publish, Message}, #state{event_manager=Event_manager}=State) ->
     gen_event:notify(Event_manager, Message),
-    {noreply, State};
+    {noreply, State, ?TIMEOUT};
 handle_cast(stop, State) ->
     {stop, normal, State}.
 
@@ -152,8 +156,13 @@ handle_cast(stop, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_info(timeout,State) ->
+    error_logger:info_report({zzzzzzzzzzzzzzzztimeout}),
+    {noreply, State, ?TIMEOUT};
+
 handle_info(_Info, State) ->
-    {noreply, State}.
+    error_logger:info_report({aaaaaaaaaaaaaaaaainfo_received, _Info}),
+    {noreply, State, ?TIMEOUT}.
 
 %%--------------------------------------------------------------------
 %% @private

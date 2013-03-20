@@ -57,8 +57,7 @@ $(function(){
 		  function(){$('#status').text('offline');},
 		  chatClient);
     chatClient.on('onmessage',
-		  function(e){
-		      var data = JSON.parse(e.data);
+		  function(data){
 		      if(enable_logging && console)
 			  console.log('response', data);
 		      switch(data.type){

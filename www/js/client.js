@@ -28,6 +28,10 @@ $(function(){
     // Bind bullet events to chatClient events
     bullet.onopen = function(){chatClient.trigger('onopen');};
     bullet.ondisconnect = function(){chatClient.trigger('disconnect');};
-    bullet.onmessage = function(e){chatClient.trigger('onmessage', e);};
+    bullet.onmessage = function(e){
+	_.each(JSON.parse(e.data),
+	       function(msg){
+		   chatClient.trigger('onmessage', msg);
+	       });};
     bullet.onheartbeat = function(){chatClient.trigger('onheartbeat');};
 });

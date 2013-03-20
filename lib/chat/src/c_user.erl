@@ -25,8 +25,6 @@
 
 -record(state, {code, nick, handler, messages}).
 
--record(message, {user_nick, content}).
-
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -207,6 +205,7 @@ handle_cast({receive_message, Message},
 	    #state{messages=Messages,
 		   handler=Handler}=State) ->
     error_logger:info_report({message_received, Message}),
+    %% TODO send msg notification after returning the state
     send_msg_notification(Handler),
     {noreply, State#state{messages=[Message|Messages]}};
 	     

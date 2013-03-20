@@ -11,6 +11,7 @@
 %% API
 -export([handle_request/3, handle_info/3]).
 
+-include("../../chat/src/c_room_event.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -60,24 +61,22 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
     {ok, User_nick} = chat:get_user_nick(User_code),
     %% Add User to room
     ok = chat:add_user(Room_code, User_code),
-    Raw_result = {[{<<"type">>,<<"connected_to_room">>},
+    Raw_result =[
+	{[{<<"type">>,<<"connected_to_room">>},
 			    {<<"room_code">>, Room_code},
 			    {<<"user_code">>, User_code},
 			    {<<"user_nick">>, User_nick}
-			   ]},
+			   ]}
+		],
     error_logger:info_report({raw_result, Raw_result}),
-    Result = jiffy:encode({[{<<"type">>,<<"connected_to_room">>},
-			    {<<"room_code">>, Room_code},
-			    {<<"user_code">>, User_code},
-			    {<<"user_nick">>, User_nick}
-			   ]}),
+    Result = jiffy:encode(Raw_result),
     {reply, Result, Req, User_code};
 
 handle_request({[{<<"type">>,<<"heartbeat">>},
 		 {<<"value">>, <<"ping">>}]},
 	       Req, State)->
-    Result = jiffy:encode({[{<<"type">>,<<"heartbeat">>},
-			    {<<"value">>, <<"pong">>}]}),
+    Result = jiffy:encode([{[{<<"type">>,<<"heartbeat">>},
+			    {<<"value">>, <<"pong">>}]}]),
     {reply, Result, Req, State};
 
 
@@ -85,16 +84,10 @@ handle_request(Msg, Req, State)->
     Result=jiffy:encode({[{<<"type">>,<<"unhandled_msg">>},{<<"msg">>, Msg}]}),
     {reply, Result, Req, State}.
 
-handle_info({user_data, Code, Nick}, Req, State) ->
-    Result = jiffy:encode({[{<<"type">>,<<"user_data">>},
-			    {<<"user_code">>, Code},
-			    {<<"user_nick">>, Nick}
-			   ]}),
-    {reply, Result, Req, State};
-handle_info({user_removed, Code}, Req, State) ->
-    Result = jiffy:encode({[{<<"type">>,<<"user_removed">>},
-			    {<<"user_code">>, Code}
-			   ]}),
+handle_info({have_message, Pid}, Req, State) ->
+    {ok, Messages} = c_user:pop_messages(Pid),
+    error_logger:info_report({have_message, Messages}),
+    Message_list = lists:map(fun message_to_jiffy/1, Messages),
+    Result = jiffy:encode(Message_list),
     {reply, Result, Req, State}.
-
 
