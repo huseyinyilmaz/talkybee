@@ -159,6 +159,7 @@ get_user_nick(Code) ->
 %% @end
 %%--------------------------------------------------------------------
 add_user(Room_code, User_code) ->
+    error_logger:info_report({add_user, Room_code, c_room:get_room(Room_code)}),
     case c_room:get_room(Room_code) of
 	{ok, Rpid} ->
 	    case c_user:get_user(User_code) of
@@ -175,6 +176,7 @@ add_user(Room_code, User_code) ->
 %% @end
 %%--------------------------------------------------------------------
 remove_user(Room_code, User_code) ->
+    error_logger:info_report({remove_user_chat}),
     case c_room:get_room(Room_code) of
 	{ok, Rpid} ->
 	    case c_user:get_user(User_code) of

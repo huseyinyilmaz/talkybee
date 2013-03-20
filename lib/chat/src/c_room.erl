@@ -20,7 +20,7 @@
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE). 
--define(TIMEOUT, 10000).
+-define(TIMEOUT, 1000000).
 -record(state, {code,
 		event_manager}).
 
@@ -123,8 +123,8 @@ handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) 
     {reply, ok, State, ?TIMEOUT};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
+    error_logging:info_report({xxxxxxxxxxxxxxxx_remove_user,Upid}),
     {ok, Code} = c_user:get_code(Upid),
-    error_logging:info_report({xxxxxxxxxxxxxxxx_remove_user, Code}),
     publish(self(), #user_removed{code=Code}),
     c_room_event:delete_handler(Event_manager, Upid),
     {reply, {ok, Event_manager}, State, ?TIMEOUT}.
@@ -156,12 +156,12 @@ handle_cast(stop, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info(timeout,State) ->
-    error_logger:info_report({zzzzzzzzzzzzzzzztimeout}),
+handle_info(timeout, State) ->
+    error_logger:info_report(timeout),
     {noreply, State, ?TIMEOUT};
 
-handle_info(_Info, State) ->
-    error_logger:info_report({aaaaaaaaaaaaaaaaainfo_received, _Info}),
+handle_info(Info, State) ->
+    error_logger:info_report(Info),
     {noreply, State, ?TIMEOUT}.
 
 %%--------------------------------------------------------------------

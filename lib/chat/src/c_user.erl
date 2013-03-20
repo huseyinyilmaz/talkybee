@@ -25,6 +25,8 @@
 
 -record(state, {code, nick, handler, messages}).
 
+-include("c_room_event.hrl").
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -191,12 +193,16 @@ handle_call({exchange_info, User_code, User_nick},
 %% user_handshake
 %% user_removed
 %% 
-handle_cast({receive_message, {user_handshake, Pid}}, State)
-  when Pid==self()->
+handle_cast({receive_message, #user_handshake{pid=Pid}}, State)
+  when Pid =:= self() ->
+    error_logger:info_report({self_receive_message}),
+
     %% Do not handshake yourself
     {noreply, State};
-handle_cast({receive_message, {user_handshake, Pid}},
+
+handle_cast({receive_message, #user_handshake{pid=Pid}},
 	    #state{code=Code, nick=Nick}=State) ->
+    error_logger:info_report({handshake_start}),
     {ok, {User_code, User_nick}} = c_user:exchange_info(Pid,{Code, Nick}),
     receive_message(self(), {user_data, User_code, User_nick}),
     {noreply, State};

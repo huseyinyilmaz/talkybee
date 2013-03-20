@@ -87,6 +87,7 @@ init([Upid]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_event(Message, #state{user=Upid}=State) ->
+    error_logger:info_report({event_start,Message}),
     c_user:receive_message(Upid, Message),
     {ok, State}.
 
