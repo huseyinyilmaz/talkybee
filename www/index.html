@@ -65,8 +65,43 @@
       .container .credit {
         margin: 20px 0;
       }
+      <!-- #users_container { -->
+      <!--   background-color:gray; -->
+      <!-- } -->
+
+#bottomArea {
+background-color: #E6E3E4;
+position: fixed;
+bottom: 0px;
+width: 100%;
+z-index: 1;
+}
+.full{
+width: 100%;
+}
 
     </style>
+
+
+<script type="text/mustache">
+
+<table class="table table-bordered table-striped">
+    <tr>
+      <td>Huseyin</td>
+    </tr>
+    <tr>
+      <td>Ayse</td>
+    </tr>
+    <tr>
+      <td>Mert</td>
+    </tr>
+    <tr>
+      <td>Sila</td>
+    </tr>
+
+  </table>
+</script>
+
 
     <link href="js/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -78,37 +113,60 @@
 </head>
 
 <body>
-<!-- Part 1: Wrap all page content here -->
-<div id="wrap">
 
-  <!-- Begin page content -->
-<div class="container">
-<div class="page-header">
-  <h1>Sticky footer</h1>
-  <p>Connection status: <span id="status">bullet not started</span></p>
-  <p>Current time: <span id="text">unknown</span></p>
+<div class="container-fluid">
+<div class="row-fluid">
+  <div class="span10">
+    <p>Connection status: <span id="status">bullet not started</span></p>
+    <p>Current time: <span id="text">unknown</span></p>
 </div>
-<p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS.</p>
-<p>Use <a href="./sticky-footer-navbar.html">the sticky footer</a> with a fixed navbar if need be, too.</p>
-<input type="TEXT" id="input"></input>
-<div id="messages"></div>
+<div class="span2" id="users_container">
+  <table class="table table-bordered table-striped">
+    <tr>
+      <td>Huseyin</td>
+    </tr>
+    <tr>
+      <td>Ayse</td>
+    </tr>
+    <tr>
+      <td>Mert</td>
+    </tr>
+    <tr>
+      <td>Sila</td>
+    </tr>
+
+  </table>
+  <span class="label label-info">Huseyin</span>
+  <span class="label label-info">Ayse</span>
 </div>
 
-      
-<div id="push"></div>
+</div>
 </div>
 
-<div id="footer">
-<div class="container">
-  <p class="muted credit">Example courtesy <a href="http://martinbean.co.uk">Martin Bean</a> and <a href="http://ryanfait.com/sticky-footer/">Ryan Fait</a>.</p>
+
+<div id="bottomArea">
+
+<div class="container-fluid">
+<div class="row-fluid">
+<div class="span11">
+  <input class="full" id="main_input" type="text">
 </div>
+<div class="span1">
+  <button class="btn" type="button">Go!</button>
 </div>
+
+</div>
+
+</div>
+
+
 
 
 <script	src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="js/bootstrap/js/bootstrap.js"></script>
 <script src="js/underscore/underscore.js"></script>
 <script src="js/backbone/backbone.js"></script>
+<script src="js/mustache/mustache.js"></script>
 
 <script src="js/bullet/bullet.js"></script>
 

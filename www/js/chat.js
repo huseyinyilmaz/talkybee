@@ -9,7 +9,9 @@ $(function(){
 	add_user: function(code,nick){
 	    chatApp.users.add({id:code, nick:nick});
 	},
-	remove_user:function(code){}
+	remove_user:function(code){
+	    chatApp.users.remove(chatApp.users.get(code));
+	}
     };
     
     window.chatApp = chatApp;
@@ -75,12 +77,15 @@ $(function(){
 			  chatApp.user_code = data.user_code;
 			  chatApp.user_nick = data.user_nick;
 			  chatApp.add_user(data.user_code, data.user_nick);
+			  chatApp.router.navigate(data.room_code);
 			  $("#text").text(chatApp.user_code + ' ' + chatApp.user_nick);
 			  break;
 			  
 			  case 'user_data':
 			  chatApp.add_user(data.code, data.nick);
-			  console.log('dataxxx:', data);
+			  break;
+			  case 'user_removed':
+			  chatApp.remove_user(data.code);
 			  break;
 		      };
 		  },
