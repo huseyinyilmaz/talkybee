@@ -123,7 +123,7 @@ handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) 
     {reply, ok, State, ?TIMEOUT};
 
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
-    error_logging:info_report({xxxxxxxxxxxxxxxx_remove_user,Upid}),
+    error_logger:info_report({xxxxxxxxxxxxxxxx_remove_user,Upid}),
     {ok, Code} = c_user:get_code(Upid),
     publish(self(), #user_removed{code=Code}),
     c_room_event:delete_handler(Event_manager, Upid),

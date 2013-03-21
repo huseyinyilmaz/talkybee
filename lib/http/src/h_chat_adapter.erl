@@ -9,9 +9,47 @@
 -module(h_chat_adapter).
 
 %% API
--export([handle_request/3, handle_info/3]).
+-export([handle_request/3, handle_info/3,
+	 terminate/1, initial_state/0]).
 
 -include("../../chat/src/c_room_event.hrl").
+
+-record(state,{room_code, user_code}).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Return initial state for handlers
+%% @end
+%%--------------------------------------------------------------------
+-spec initial_state() -> tuple().
+initial_state()->
+    #state{room_code=undefined,
+	   user_code=undefined}.
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Converts messages to structures that can be serialized to json by jiffy
+%% @end
+%%--------------------------------------------------------------------
+-spec message_to_jiffy(tuple()) -> tuple().
+message_to_jiffy(#user_data{code=Code,nick=Nick}) ->
+    {[{<<"type">>,<<"user_data">>},
+      {<<"code">>, Code},
+      {<<"nick">>, Nick}
+     ]};
+
+message_to_jiffy(#message{code=Code,message=Message}) ->
+    {[{<<"type">>,<<"message">>},
+      {<<"code">>, Code},
+      {<<"message">>, Message}
+     ]};
+
+message_to_jiffy(#user_removed{code=Code}) ->
+    {[{<<"type">>,<<"user_removed">>},
+      {<<"code">>, Code}
+     ]}.
+
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -41,10 +79,7 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
     case Client_user_code of
 	<<>> -> ok;
 	_ ->
-	    %% Stop old user
-	    error_logger:info_report({stop_old_user, Client_user_code}),
-	    chat:remove_user(Client_room_code, Client_user_code),
-	    chat:stop_user(Client_user_code)
+	    stop_user(Client_room_code, Client_user_code)
     end,
     
     %% Start a new user
@@ -70,7 +105,7 @@ handle_request({[{<<"type">>,<<"connect_to_room">>},
 		],
     error_logger:info_report({raw_result, Raw_result}),
     Result = jiffy:encode(Raw_result),
-    {reply, Result, Req, User_code};
+    {reply, Result, Req, #state{user_code=User_code, room_code=Room_code}};
 
 handle_request({[{<<"type">>,<<"heartbeat">>},
 		 {<<"value">>, <<"ping">>}]},
@@ -90,4 +125,15 @@ handle_info({have_message, Pid}, Req, State) ->
     Message_list = lists:map(fun message_to_jiffy/1, Messages),
     Result = jiffy:encode(Message_list),
     {reply, Result, Req, State}.
+
+terminate(#state{user_code=undefined}) -> ok;
+terminate(#state{room_code=undefined}) -> ok;
+terminate(#state{user_code=User_code, room_code=Room_code}) ->
+    stop_user(Room_code, User_code).
+
+stop_user(Room_code, User_code) ->
+    error_logger:info_report({stop_old_user, User_code}),
+    chat:remove_user(Room_code, User_code),
+    chat:stop_user(User_code).
+
 

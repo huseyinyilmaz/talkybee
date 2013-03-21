@@ -21,7 +21,6 @@
 
 -record(state, {user}).
 
-
 %%%===================================================================
 %%% gen_event callbacks
 %%%===================================================================
@@ -87,9 +86,16 @@ init([Upid]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_event(Message, #state{user=Upid}=State) ->
-    error_logger:info_report({event_start,Message}),
-    c_user:receive_message(Upid, Message),
-    {ok, State}.
+    %% if user is dead remove handler
+    case is_process_alive(Upid) of
+	true ->
+	    error_logger:info_report({event_start, Message}),
+	    c_user:receive_message(Upid, Message),
+	    {ok, State};
+	_ ->
+	    error_logger:info_report({dead_user, handler_removed}),
+	    remove_handler
+    end.
 
 %%--------------------------------------------------------------------
 %% @private
