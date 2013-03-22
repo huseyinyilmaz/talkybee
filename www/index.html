@@ -83,22 +83,14 @@ width: 100%;
     </style>
 
 
-<script type="text/mustache">
+<script type="text/mustache" id="users_template">
 
 <table class="table table-bordered table-striped">
+  {{#collection.models}}
     <tr>
-      <td>Huseyin</td>
+      <td class="td-{{code}}">{{nick}}</td>
     </tr>
-    <tr>
-      <td>Ayse</td>
-    </tr>
-    <tr>
-      <td>Mert</td>
-    </tr>
-    <tr>
-      <td>Sila</td>
-    </tr>
-
+    {{/collection.models}}
   </table>
 </script>
 

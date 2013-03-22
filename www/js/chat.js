@@ -35,6 +35,33 @@ $(function(){
     chatApp.users = new UserCollection();
     chatApp.messages = new MessageCollection();
 
+    ///////////
+    // Views //
+    ///////////
+
+    chatApp.UsersView = Backbone.View.extend({
+	initialize: function(options){
+	    _.bindAll(this);
+	    this.collection.bind('add', this.render);
+	    this.collection.bind('remove', this.render);
+	    this.template_text = $('#users_template').html();
+	},
+	render: function(){
+	    this.$el.html(
+		Mustache.render(this.template_text,
+				{collection:this.collection,
+				 code:function(){return this.get('id');},
+				 nick:function(){return this.get('nick');}
+				})
+	    );
+	}
+    });
+
+    chatApp.usersView = new chatApp.UsersView({
+	collection: chatApp.users,
+	el: '#users_container'
+    });
+    
     ////////////
     // Router //
     ////////////
@@ -57,8 +84,9 @@ $(function(){
     chatApp.router = new chatApp.Router();
     Backbone.history.start();
 
-
-    //connect to server events
+    ////////////////////
+    // Event handlers //
+    ////////////////////
     chatClient.on('onopen',
 		  function(){$('#status').text('online');},
 		  chatClient);
