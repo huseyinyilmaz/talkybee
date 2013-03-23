@@ -114,6 +114,19 @@ handle_request({[{<<"type">>,<<"heartbeat">>},
 			    {<<"value">>, <<"pong">>}]}]),
     {reply, Result, Req, State};
 
+handle_request({[{<<"type">>,<<"message">>},
+		 {<<"value">>, Message}]},
+	       Req, #state{room_code=Room_code, user_code=User_code}=State)->
+    chat:send_message(Room_code,User_code,Message),
+    {ok, Req, State};
+
+handle_request({[{<<"type">>,<<"rename">>},
+		 {<<"value">>, Nick}]},
+	       Req, #state{room_code=Room_code, user_code=User_code}=State)->
+    chat:set_user_nick(User_code, Nick),
+    %% publish renamed user name
+    chat:publish_user(Room_code, User_code),
+    {ok, Req, State};
 
 handle_request(Msg, Req, State)->
     Result=jiffy:encode({[{<<"type">>,<<"unhandled_msg">>},{<<"msg">>, Msg}]}),

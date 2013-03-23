@@ -14,7 +14,7 @@
 %% API
 -export([start_link/3, get_user/1, get_nick/1, get_code/1,
 	 get_info/1, get_count/0, stop/1, receive_message/2,
-	 pop_messages/1, set_handler/2, introduce_user/2,
+	 pop_messages/1, set_handler/2, set_nick/2, introduce_user/2,
 	 exchange_info/2, get_message/2]).
 
 %% gen_server callbacks
@@ -70,6 +70,9 @@ pop_messages(Pid) ->
 
 set_handler(Upid, Hpid) ->
     gen_server:call(Upid, {set_handler, Hpid}).
+
+set_nick(Pid, Nick) ->
+    gen_server:call(Pid, {set_nick, Nick}).
 
 -spec stop(pid()) -> ok.
 stop(Pid) ->
@@ -163,6 +166,9 @@ handle_call({set_handler, Pid}, _From, #state{handler=Handler}=State) ->
         false ->
             {reply, ok , State#state{handler=Pid}}
     end;
+
+handle_call({set_nick, Nick}, _From, State) ->
+    {reply, ok , State#state{nick=Nick}};
 
 handle_call({exchange_info, User_code, User_nick},
 	    _From,

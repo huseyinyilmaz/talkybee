@@ -7,7 +7,14 @@ $(function(){
 	user_code: '',
 	user_nick: '',
 	add_user: function(code,nick){
-	    chatApp.users.add({id:code, nick:nick});
+	    chatApp.users.add({id:code, nick:nick},{merge:true});
+	},
+	add_message: function(code,message){
+	    var user = chatApp.users.get(code);
+	    var nick = user.get('nick');
+	    chatApp.messages.add({code:code,
+				  nick:nick,
+				  message:message});
 	},
 	remove_user:function(code){
 	    chatApp.users.remove(chatApp.users.get(code));
@@ -44,6 +51,7 @@ $(function(){
 	    _.bindAll(this);
 	    this.collection.bind('add', this.render);
 	    this.collection.bind('remove', this.render);
+	    this.collection.bind('change', this.render);
 	    this.template_text = $('#users_template').html();
 	},
 	render: function(){
@@ -52,14 +60,47 @@ $(function(){
 				{collection:this.collection,
 				 code:function(){return this.get('id');},
 				 nick:function(){return this.get('nick');}
-				})
+				}));
+	}});
+    
+    chatApp.MessageView = Backbone.View.extend({
+	tagName: 'li',
+	className: 'message',
+	template_text: $('#message_template').html(),
+	initialize: function(){
+	    _.bindAll(this);
+	},
+	render: function(){
+	    this.$el.html(
+		Mustache.render(
+		    this.template_text,
+		    this.model.toJSON()
+		)
 	    );
+	    return this;
 	}
     });
 
+    chatApp.MessagesView = Backbone.View.extend({
+	initialize: function(){
+	    _.bindAll(this);
+	    this.collection.bind('add', this.addMessage);
+	},
+	addMessage: function(model){
+	    var messageView = new chatApp.MessageView({model:model});
+	    messageView.render();
+	    this.$el.append(messageView.$el);
+	}
+    });
+    
     chatApp.usersView = new chatApp.UsersView({
 	collection: chatApp.users,
 	el: '#users_container'
+    });
+    
+    chatApp.messagesView = new chatApp.MessagesView({
+	collection: chatApp.messages,
+	el: '#messages_container'
     });
     
     ////////////
@@ -88,10 +129,10 @@ $(function(){
     // Event handlers //
     ////////////////////
     chatClient.on('onopen',
-		  function(){$('#status').text('online');},
+		  function(){console.log('online');},
 		  chatClient);
     chatClient.on('ondisconnect',
-		  function(){$('#status').text('offline');},
+		  function(){console.log('offline');},
 		  chatClient);
     chatClient.on('onmessage',
 		  function(data){
@@ -106,7 +147,6 @@ $(function(){
 			  chatApp.user_nick = data.user_nick;
 			  chatApp.add_user(data.user_code, data.user_nick);
 			  chatApp.router.navigate(data.room_code);
-			  $("#text").text(chatApp.user_code + ' ' + chatApp.user_nick);
 			  break;
 			  
 			  case 'user_data':
@@ -115,6 +155,9 @@ $(function(){
 			  case 'user_removed':
 			  chatApp.remove_user(data.code);
 			  break;
+			  case 'message':
+			  chatApp.add_message(data.code, data.message);
+			  break;
 		      };
 		  },
 		  chatClient);
@@ -122,5 +165,12 @@ $(function(){
     chatClient.on('onheartbeat',
 		  function(){this.send_message({type:'heartbeat', value:'ping'});},
 		  chatClient);
+    
+    $('#send_button').click(function(){
+	chatClient.send_message({type: 'message',
+				 value: $('#main_input').val()});});
+    $('#rename_button').click(function(){
+	chatClient.send_message({type: 'rename',
+				 value: $('#rename_input').val()});});
 
 });

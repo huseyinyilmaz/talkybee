@@ -12,7 +12,8 @@
 -export([start/0, stop/0, create_room/0, create_room/1, stop_room/1,
 	 create_user/1, create_user/2, create_user/3, stop_user/1,
 	 get_room_count/0, get_user_nick/1, get_user_count/0, add_user/2,
-	 remove_user/2, send_message/3, pop_messages/1, introduce_user/2]).
+	 remove_user/2, send_message/3, pop_messages/1, introduce_user/2,
+	 set_user_nick/2, publish_user/2]).
 
 %%%===================================================================
 %%% API
@@ -223,3 +224,18 @@ send_message(Room_code, User_code, Message) ->
 pop_messages(User_code) ->
     {ok, Upid} = c_user:get_user(User_code),
     c_user:pop_messages(Upid).
+
+set_user_nick(Code, Nick) ->
+    {ok, Pid} = c_user:get_user(Code),
+    c_user:set_nick(Pid, Nick).
+
+publish_user(Room_code, User_code) ->
+    case c_room:get_room(Room_code) of
+	{ok, Rpid} ->
+	    case c_user:get_user(User_code) of
+		{ok, Upid} -> c_room:publish_user(Rpid, Upid);
+		Error -> Error
+	    end;
+	Error -> Error
+    end.
+    

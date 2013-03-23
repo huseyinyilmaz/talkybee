@@ -13,7 +13,8 @@
 %% API
 -export([start_link/1, get_code/1, get_room/1,
 	 get_event_manager/1, get_count/0, stop/1,
-	 add_user/2, remove_user/2, publish/2, send_message/3]).
+	 add_user/2, remove_user/2, publish/2, send_message/3,
+	 publish_user/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -88,6 +89,12 @@ publish(Rpid, Message) ->
 send_message(Rpid, Code, Message) ->
     publish(Rpid, #message{code=Code,
 			   message=Message}).
+publish_user(Rpid, Upid) ->
+    {ok, {Code, Nick}} = c_user:get_info(Upid),
+    publish(Rpid, #user_data{code=Code,
+			     nick=Nick}).
+
+
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
