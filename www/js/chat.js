@@ -9,13 +9,15 @@ $(function(){
 	add_user: function(code,nick){
 	    chatApp.users.add({id:code, nick:nick},{merge:true});
 	},
-	add_message: function(code,message){
+	add_message: function(code,message, type){
 	    var user = chatApp.users.get(code);
 	    var nick = user.get('nick');
 	    chatApp.messages.add({code:code,
 				  nick:nick,
-				  message:message});
+				  message:message,
+				  type:type});
 	},
+
 	remove_user:function(code){
 	    chatApp.users.remove(chatApp.users.get(code));
 	}
@@ -156,7 +158,7 @@ $(function(){
 			  chatApp.remove_user(data.code);
 			  break;
 			  case 'message':
-			  chatApp.add_message(data.code, data.message);
+			  chatApp.add_message(data.code, data.message, 'message');
 			  break;
 		      };
 		  },
