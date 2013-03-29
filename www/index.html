@@ -96,7 +96,12 @@ width: 100%;
 </script>
 
 <script type="text/mustache" id="message_template">
+{{^log}}
   {{nick}} - {{message}}
+{{/log}}
+{{#log}}
+  <small class="muted">{{nick}} - {{message}}</small>
+{{/log}}
 </script>  
 
     <link href="js/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">

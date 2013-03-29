@@ -9,15 +9,22 @@ $(function(){
 	add_user: function(code,nick){
 	    chatApp.users.add({id:code, nick:nick},{merge:true});
 	},
-	add_message: function(code,message, type){
+	add_message: function(code,message){
 	    var user = chatApp.users.get(code);
 	    var nick = user.get('nick');
 	    chatApp.messages.add({code:code,
 				  nick:nick,
 				  message:message,
-				  type:type});
+				  log:false});
 	},
-
+	
+	log: function(message){
+	    chatApp.messages.add({code:'',
+				  nick:'LOGGER',
+				  message:message,
+				  log: true});
+	},
+	
 	remove_user:function(code){
 	    chatApp.users.remove(chatApp.users.get(code));
 	}
@@ -131,10 +138,14 @@ $(function(){
     // Event handlers //
     ////////////////////
     chatClient.on('onopen',
-		  function(){console.log('online');},
+		  function(){chatApp.log('Connected to main server');
+			     if(enable_logging && console)
+			     	 console.log('online');},
 		  chatClient);
     chatClient.on('ondisconnect',
-		  function(){console.log('offline');},
+		  function(){chatApp.log('Connection lost with main server');
+			     if(enable_logging && console)
+				 console.log('offline');},
 		  chatClient);
     chatClient.on('onmessage',
 		  function(data){
@@ -144,6 +155,8 @@ $(function(){
 			  case 'heartbeat':
 			  break;
 			  case 'connected_to_room':
+			  chatApp.log('Connected to room ' + data.room_code);
+			  chatApp.log('Current user data: ' + data.user_code + ' - ' + data.user_nick);
 			  chatApp.room_code = data.room_code;
 			  chatApp.user_code = data.user_code;
 			  chatApp.user_nick = data.user_nick;
@@ -152,9 +165,11 @@ $(function(){
 			  break;
 			  
 			  case 'user_data':
+			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
 			  chatApp.add_user(data.code, data.nick);
 			  break;
 			  case 'user_removed':
+			  chatApp.log('Remove user: ' + data.code);
 			  chatApp.remove_user(data.code);
 			  break;
 			  case 'message':
