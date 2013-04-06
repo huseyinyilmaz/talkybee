@@ -38,8 +38,20 @@ message_to_jiffy(#user_data{code=Code,nick=Nick}) ->
       {<<"nick">>, Nick}
      ]};
 
+message_to_jiffy(#room_data{code=Code,is_locked=Is_locked}) ->
+    {[{<<"type">>,<<"room_data">>},
+      {<<"code">>, Code},
+      {<<"is_locked">>, Is_locked}
+     ]};
+
 message_to_jiffy(#message{code=Code,message=Message}) ->
     {[{<<"type">>,<<"message">>},
+      {<<"code">>, Code},
+      {<<"message">>, Message}
+     ]};
+
+message_to_jiffy(#error{code=Code, message=Message}) ->
+    {[{<<"type">>,<<"error">>},
       {<<"code">>, Code},
       {<<"message">>, Message}
      ]};
@@ -126,6 +138,20 @@ handle_request({[{<<"type">>,<<"rename">>},
     chat:set_user_nick(User_code, Nick),
     %% publish renamed user name
     chat:publish_user(Room_code, User_code),
+    {ok, Req, State};
+
+handle_request({[{<<"type">>,<<"lock_room">>},
+		 {<<"value">>, Room_code}]},
+	       Req, #state{room_code=Room_code}=State)->
+    error_logger:info_report({lock_room, Room_code}),
+    chat:lock_room(Room_code),
+    {ok, Req, State};
+
+handle_request({[{<<"type">>,<<"unlock_room">>},
+		 {<<"value">>, Room_code}]},
+	       Req, #state{room_code=Room_code}=State)->
+    error_logger:info_report({unlock_room, Room_code}),
+    chat:unlock_room(Room_code),
     {ok, Req, State};
 
 handle_request(Msg, Req, State)->

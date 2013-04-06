@@ -13,7 +13,7 @@
 	 create_user/1, create_user/2, create_user/3, stop_user/1,
 	 get_room_count/0, get_user_nick/1, get_user_count/0, add_user/2,
 	 remove_user/2, send_message/3, pop_messages/1, introduce_user/2,
-	 set_user_nick/2, publish_user/2]).
+	 set_user_nick/2, publish_user/2, lock_room/1, unlock_room/1]).
 
 %%%===================================================================
 %%% API
@@ -239,3 +239,21 @@ publish_user(Room_code, User_code) ->
 	Error -> Error
     end.
     
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Locks room with given code
+%% @end
+%%--------------------------------------------------------------------
+lock_room(Room_code) ->
+	{ok, Rpid} = c_room:get_room(Room_code),
+	c_room:lock(Rpid).
+
+%%--------------------------------------------------------------------
+%% @doc
+%% Unlocks room with given code
+%% @end
+%%--------------------------------------------------------------------
+unlock_room(Room_code) ->
+	{ok, Rpid} = c_room:get_room(Room_code),
+	c_room:unlock(Rpid).

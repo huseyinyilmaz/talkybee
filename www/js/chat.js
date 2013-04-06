@@ -4,10 +4,21 @@ $(function(){
     // Create namespace //
     //////////////////////
     var chatApp = {
+	room_code: '',
 	user_code: '',
 	user_nick: '',
+	is_locked: false,
 	add_user: function(code,nick){
 	    chatApp.users.add({id:code, nick:nick},{merge:true});
+	},
+	update_room: function(code, is_locked){
+	    // if lock value did not changed do
+	    // not do anything
+	    if(is_locked !== this.is_locked){
+		this.is_locked = is_locked;
+		$('#lock_button').text(is_locked ? 'Unlock room' : 'Lock room');
+	    }
+	    console.log(code,is_locked);
 	},
 	add_message: function(code,message){
 	    var user = chatApp.users.get(code);
@@ -168,6 +179,12 @@ $(function(){
 			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
 			  chatApp.add_user(data.code, data.nick);
 			  break;
+			  case 'room_data':
+			  chatApp.log('New room data: ' +
+				      data.code +
+				      ' Is room locked(' + data.is_locked + ')' );
+			  chatApp.update_room(data.code, data.is_locked)
+			  
 			  case 'user_removed':
 			  chatApp.log('Remove user: ' + data.code);
 			  chatApp.remove_user(data.code);
@@ -190,4 +207,8 @@ $(function(){
 	chatClient.send_message({type: 'rename',
 				 value: $('#rename_input').val()});});
 
+    $('#lock_button').click(function(){
+	chatClient.send_message({type: chatApp.is_locked?'unlock_room' : 'lock_room',
+				 value: chatApp.room_code});});
+    
 });

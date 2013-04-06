@@ -14,7 +14,7 @@
 -export([start_link/1, get_code/1, get_room/1,
 	 get_event_manager/1, get_count/0, stop/1,
 	 add_user/2, remove_user/2, publish/2, send_message/3,
-	 publish_user/2]).
+	 publish_user/2, publish_room/1, lock/1, unlock/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -23,6 +23,7 @@
 -define(SERVER, ?MODULE). 
 -define(TIMEOUT, 1000000).
 -record(state, {code,
+		is_locked,
 		event_manager}).
 
 -include("c_room_event.hrl").
@@ -94,6 +95,14 @@ publish_user(Rpid, Upid) ->
     publish(Rpid, #user_data{code=Code,
 			     nick=Nick}).
 
+publish_room(Pid) ->
+    gen_server:cast(Pid, publish_room).
+
+lock(Pid) ->
+    gen_server:cast(Pid, lock).
+
+unlock(Pid) ->
+    gen_server:cast(Pid, unlock).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -114,6 +123,7 @@ init([Code]) ->
 	    ets:insert(rooms, {Code, self()}),
 	    {ok,
 	     #state{code=Code,
+		    is_locked=false,
 		    event_manager=Event_manager},
 	    ?TIMEOUT}
     end.
@@ -124,13 +134,20 @@ handle_call(get_code, _From, #state{code=Code}=State) ->
 handle_call(get_event_manager, _From, #state{event_manager=Event_manager}=State) ->
     {reply, {ok, Event_manager}, State, ?TIMEOUT};
 
-handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
+handle_call({add_user, Upid}, _From, #state{event_manager=Event_manager,
+					    is_locked=false}=State) ->
     c_room_event:add_handler(Event_manager, Upid),
     publish(self(), #user_handshake{pid=Upid}),
     {reply, ok, State, ?TIMEOUT};
 
+handle_call({add_user, Upid}, _From, #state{is_locked=true}=State) ->
+    c_user:receive_message(
+      Upid,
+      #error{code = <<"room_locked">>,
+	     message= <<"This room is locked. You cannot entered current session.">>}),
+    {reply, ok, State, ?TIMEOUT};
+
 handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=State) ->
-    error_logger:info_report({xxxxxxxxxxxxxxxx_remove_user,Upid}),
     {ok, Code} = c_user:get_code(Upid),
     publish(self(), #user_removed{code=Code}),
     c_room_event:delete_handler(Event_manager, Upid),
@@ -146,9 +163,23 @@ handle_call({remove_user, Upid}, _From, #state{event_manager=Event_manager}=Stat
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_cast(publish_room, #state{code=Code,is_locked=Is_locked}=State) ->
+    publish(self(), #room_data{code=Code,
+			       is_locked=Is_locked}),
+    {noreply, State, ?TIMEOUT};
+
+handle_cast(lock,State) ->
+    publish_room(self()),
+    {noreply, State#state{is_locked=true}, ?TIMEOUT};
+
+handle_cast(unlock,State) ->
+    publish_room(self()),
+    {noreply, State#state{is_locked=false}, ?TIMEOUT};
+
 handle_cast({publish, Message}, #state{event_manager=Event_manager}=State) ->
     gen_event:notify(Event_manager, Message),
     {noreply, State, ?TIMEOUT};
+
 handle_cast(stop, State) ->
     {stop, normal, State}.
 
