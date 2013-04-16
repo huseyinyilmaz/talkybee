@@ -3,23 +3,28 @@ REBAR = ./rebar
 MNESIA_DIR = /tmp/mnesia
 NODE_NAME = dev_node
 
+# compile
 all: compile
 
-init-devdeps:
-	git clone git://github.com/rustyio/sync.git devutils/sync
-	cd devutils/sync; make
+# get dependencies
+getdeps:
+	@$(REBAR) get-deps
 
-compile: compile-devutils
+# initialize development
+initdev: init
+	git clone git://github.com/rustyio/sync.git devutils/sync
+	cd devutils/sync; mkdir ebin; make
+
+init: getdeps collectstatic
+
+compile:
 	@$(REBAR) compile
 
-compile-devutils: 
+compiledev: compile 
 	cd devutils/sync; make
 	cd devutils/utils; make
 
-deps:
-	@$(REBAR) get-deps
-
-collect-static:
+collectstatic:
 	mkdir www/js/bullet
 	cp deps/bullet/priv/bullet.js www/js/bullet/
 
@@ -28,13 +33,13 @@ clean:
 	rm -f test/*.beam
 	rm -f erl_crash.dump
 
-tests: clean app eunit ct
+test: clean eunit
 
 eunit:
 	@$(REBAR) eunit skip_deps=true
 
-ct:
-	@$(REBAR) ct skip_deps=true
+# ct:
+# 	@$(REBAR) ct skip_deps=true
 
 build-plt:
 	@$(DIALYZER) --build_plt --output_plt .talkybee_dialyzer.plt \
@@ -47,13 +52,7 @@ dialyze:
 docs:
 	@$(REBAR) doc skip_deps=true
 
-shell: compile
-	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin\
-	    -i  lib/*/include deps/*/include devutils/*/include\
-	    -mnesia dir $(MNESIA_DIR) \
-	    -sname $(NODE_NAME)
-
-
+# start for development
 start: compile
 	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \
 	    -i  lib/*/include deps/*/include devutils/*/include \
@@ -63,20 +62,10 @@ start: compile
 	           debug:start(),\
 		   sync:go()."
 
-dev: compile
-	erl -pa lib/*/ebin deps/*/ebin devutils/*/ebin \
-	    -i  lib/*/include deps/*/include devutils/*/include \
-	    -mnesia dir $(MNESIA_DIR) \
-	    -sname $(NODE_NAME) \
-	    -eval "application:start(sasl),\
-           appmon:start(),\
-		   chat:start(),\
-		   chat:create_room(1),\
-                   {ok, Room} = c_room:get_room(1),\
-                   chat:create_user(1,1),\
-                   chat:create_user(2,2),\
-		   {ok, User1} = c_user:get_user(1),\
-                   {ok, User2} = c_user:get_user(2),\
-                   c_room:add_user(Room,User1),\
-                   c_room:add_user(Room,User2),\
-           sync:go()."
+pack: clean compile
+	@$(REBAR) generate
+	cp -r www rel/talkybee
+	cd rel; tar -czvf talkybee.tar.gz talkybee
+	rm -rf rel/talkybee
+	mv rel/talkybee.tar.gz .
+	echo "talkybee.tar.gz is created in current directory."
