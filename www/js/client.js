@@ -21,8 +21,8 @@ $(function(){
     chatClient = _.extend(chatClient, Backbone.Events);
 
     window.chatClient = chatClient;
-    
-    var bullet = $.bullet('ws://localhost:8080/bullet');
+    var host = location.host;
+    var bullet = $.bullet('ws://' + host + '/bullet');
     chatClient.bullet = bullet;
 
     // Bind bullet events to chatClient events
