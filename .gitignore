@@ -9,6 +9,7 @@ doc/
 \.eunit
 *.beam
 *.plt
+talkybee.tar.gz
 talkybee.sublime-project
 talkybee.sublime-workspace
 *.dump

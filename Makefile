@@ -62,7 +62,7 @@ start: compile
 	           debug:start(),\
 		   sync:go()."
 
-pack: lean compile
+pack: init compile
 	@$(REBAR) generate
 	cp -r www rel/talkybee
 	cd rel; tar -czvf talkybee.tar.gz talkybee
