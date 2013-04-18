@@ -12,8 +12,8 @@ getdeps:
 
 # initialize development
 initdev: init
-	git clone git://github.com/rustyio/sync.git devutils/sync
-	cd devutils/sync; mkdir ebin; make
+	cd devutils; if [ ! -d "sync" ]; then git clone git://github.com/rustyio/sync.git sync; fi
+	cd devutils/sync; mkdir -p ebin; make
 
 init: getdeps collectstatic
 
@@ -25,8 +25,8 @@ compiledev: compile
 	cd devutils/utils; make
 
 collectstatic:
-	mkdir www/js/bullet
-	cp deps/bullet/priv/bullet.js www/js/bullet/
+	cd www/js;mkdir -p bullet
+	cp deps/bullet/priv/bullet.js www/js/bullet/bullet.js
 
 clean:
 	@$(REBAR) clean
@@ -62,7 +62,7 @@ start: compile
 	           debug:start(),\
 		   sync:go()."
 
-pack: clean compile
+pack: lean compile
 	@$(REBAR) generate
 	cp -r www rel/talkybee
 	cd rel; tar -czvf talkybee.tar.gz talkybee
