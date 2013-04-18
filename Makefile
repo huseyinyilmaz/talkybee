@@ -20,7 +20,7 @@ init: getdeps collectstatic
 compile:
 	@$(REBAR) compile
 	cd devutils; if [ -d "sync" ]; then cd sync;make; fi
-	cd devutils; if [ -d "utils" ]; then cd utils;make; fi
+	cd devutils; if [ -d "utils" ]; then cd utils;mkdir -p ebin;make; fi
 
 collectstatic:
 	cd www/js;mkdir -p bullet
