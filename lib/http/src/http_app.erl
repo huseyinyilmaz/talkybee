@@ -8,7 +8,9 @@
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
-
+-spec start(normal | {takeover, node()} | {failover, node()},
+            any()) -> {ok, pid()} | {ok, pid(), State::any()} |
+                      {error, Reason::any()}.
 start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile(
 		 [{c_utils:get_env(http, host, '_'), % host match
@@ -33,8 +35,17 @@ start(_StartType, _StartArgs) ->
 				[{port, c_utils:get_env(http, port, 8765)},
 				 {max_connections,
 				  c_utils:get_env(http,max_connections,infinity)}],
-				[{env, [{dispatch, Dispatch}]}]).
+				[{env, [{dispatch, Dispatch}]}]),
+
+    %% Start main supervisor
+    case http_sup:start_link() of
+	{ok, Pid} ->
+	    {ok, Pid};
+	Error ->
+	    Error
+		end.
 
 
+-spec stop(State::any()) -> ok.
 stop(_State) ->
     ok.

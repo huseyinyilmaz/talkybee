@@ -34,7 +34,11 @@ start() ->
 %% @end
 %%--------------------------------------------------------------------
 stop() ->
-    application:stop(http).
+    application:stop(http),
+    application:stop(cowboy),
+    application:stop(ranch),
+    application:stop(crypto).
+
 
 %%%===================================================================
 %%% Internal functions
