@@ -55,6 +55,7 @@
 .ml50{margin-left:50px;}
 .ml85{margin-left:85px;}
 .ml100{margin-left:100px;}
+.mb0{margin-bottom:0px;}
 .mb5{margin-bottom:5px;}
 .mb10{margin-bottom:10px;}
 .mb20{margin-bottom:10px;}
@@ -332,3 +333,12 @@ body{
 	margin-right: 0;
 }
 
+
+
+.footer {
+   position:fixed;
+   left:0px;
+   bottom:0px;
+   height:50px;
+   width:100%;
+}

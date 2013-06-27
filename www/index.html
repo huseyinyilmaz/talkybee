@@ -70,17 +70,6 @@
       <!--   background-color:gray; -->
       <!-- } -->
 
-#bottomArea {
-background-color: #E6E3E4;
-position: fixed;
-bottom: 0px;
-width: 100%;
-z-index: 1;
-}
-.full{
-width: 100%;
-}
-
   </style>
 
 <!--------------->
@@ -121,7 +110,7 @@ width: 100%;
 <div class="span2">
 <div id="users_container"></div>
 <div id="rename_panel">
-<input class="full" id="rename_input" type="text">
+<input class="wf" id="rename_input" type="text">
 <button class="btn" type="button" id="rename_button">Rename</button>
 </div>
 <div id='lock_panel'>
@@ -134,16 +123,20 @@ width: 100%;
 </div>
 
 
-<div id="bottomArea">
-<div>
-
-<a href="">test</a>
-<input id="main_input" type="text">
-<button class="btn" type="button" id="send_button">Send</button>
-
-
-</div>
-
+<div id="bottomArea" class="footer">
+<table class="table mb0">
+  <tr>
+    <td>
+      <a href="">test</a>
+    </td>
+    <td class="wf">
+      <input id="main_input" type="text" class="wf mb0">
+    </td>
+    <td>
+      <button class="btn" type="button" id="send_button">Send</button>
+    </td>
+</tr>
+</table>
 
 
 
