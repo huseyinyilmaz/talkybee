@@ -112,6 +112,42 @@ $(function(){
 	    this.$el.append(messageView.$el);
 	}
     });
+    // XXX add current user view
+    chatApp.CurrentUserView = Backbone.View.extend({
+	initialize: function(options){
+	    _.bindAll(this);
+	    this.model.bind('add', this.render);
+	    this.model.bind('remove', this.render);
+	    this.model.bind('change', this.render);
+	    this.standard_template_text = $('#user_nick_template').html();
+	    this.edit_template_text = $('#user_nick_edit_template').html();
+	    this.render();
+	},
+	render: function(){
+	    this.$el.html(
+		Mustache.render(this.standard_template_text, {nick:this.model.get('nick')}));
+
+	    $("#current_user_nick_button").click(_.bind(this.render_edit, this));
+	},
+	edit_nick: function(){
+	    var nick = $("#edit_nick_input").val();
+	    chatClient.send_message({type: 'rename',
+				     value: nick});
+	    this.render();
+	},
+	render_edit: function(){
+	    this.$el.html(
+		Mustache.render(this.edit_template_text, {nick:this.model.get('nick')}));
+	    $("#edit_nick_cancel_button").click(_.bind(this.render, this));
+	    $("#edit_nick_ok_button").click(_.bind(this.edit_nick, this));
+	    
+	    $('#edit_nick_input').keypress(_.bind(function(e){
+		if(e.type=='keypress' && e.charCode==13)
+		    this.edit_nick();
+	    }, this));
+
+	}
+    });
     
     chatApp.usersView = new chatApp.UsersView({
 	collection: chatApp.users,
@@ -122,6 +158,8 @@ $(function(){
 	collection: chatApp.messages,
 	el: '#messages_container'
     });
+    
+    chatApp.currentUserView = 
     
     ////////////
     // Router //
@@ -172,23 +210,38 @@ $(function(){
 			  chatApp.user_code = data.user_code;
 			  chatApp.user_nick = data.user_nick;
 			  chatApp.add_user(data.user_code, data.user_nick);
+			  
+			  //Change user nick on ui
+			  // $("#current_user_nick").text(chatApp.user_nick);
+			  chatApp.currentUserView = new chatApp.CurrentUserView({
+			      model: chatApp.users.get(chatApp.user_code),
+			      el: '#current_user_nick'});
+			  
 			  chatApp.router.navigate(data.room_code);
+
 			  break;
 			  
 			  case 'user_data':
 			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
+			  chatApp.user_code = data.code;
+			  chatApp.user_nick = data.nick;
+			  //Change user nick on ui
+			  $("#current_user_nick").text(chatApp.user_nick);
 			  chatApp.add_user(data.code, data.nick);
 			  break;
+
 			  case 'room_data':
 			  chatApp.log('New room data: ' +
 				      data.code +
 				      ' Is room locked(' + data.is_locked + ')' );
 			  chatApp.update_room(data.code, data.is_locked)
-			  
+			  break;
+
 			  case 'user_removed':
 			  chatApp.log('Remove user: ' + data.code);
 			  chatApp.remove_user(data.code);
 			  break;
+
 			  case 'message':
 			  chatApp.add_message(data.code, data.message, 'message');
 			  break;
@@ -199,16 +252,23 @@ $(function(){
     chatClient.on('onheartbeat',
 		  function(){this.send_message({type:'heartbeat', value:'ping'});},
 		  chatClient);
-    
-    $('#send_button').click(function(){
+    function send_message(){
+	var main_input = $('#main_input');
 	chatClient.send_message({type: 'message',
-				 value: $('#main_input').val()});});
-    $('#rename_button').click(function(){
-	chatClient.send_message({type: 'rename',
-				 value: $('#rename_input').val()});});
+				 value:main_input.val()});
+	main_input.val('');
+	
+    }    
+    $('#send_button').click(send_message);
+    $('#main_input').keypress(function(e){
+	if(e.type=='keypress' && e.charCode==13)
+	    send_message();
+    });
 
     $('#lock_button').click(function(){
 	chatClient.send_message({type: chatApp.is_locked?'unlock_room' : 'lock_room',
 				 value: chatApp.room_code});});
+
+
     
 });

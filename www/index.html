@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Bullet Clock</title>
+  <title>Talky Bee</title>
   <meta charset="utf-8">
   <title>Bootstrap, from Twitter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,7 +92,22 @@
 {{#log}}
   <small class="muted">{{nick}} - {{message}}</small>
 {{/log}}
-</script>  
+</script>
+
+<script type="text/mustache" id="user_nick_template">
+  <button type="button" class="btn btn-link pr0 pl0" id="current_user_nick_button">
+     {{nick}}
+  </button>
+</script>
+
+<script type="text/mustache" id="user_nick_edit_template">
+  <div class="input-append">
+    <input class="span2" id="edit_nick_input" type="text" >
+    <button class="btn" type="button" id="edit_nick_ok_button">Ok</button>
+    <button class="btn" type="button" id="edit_nick_cancel_button">Cancel</button>
+  </div>  
+</script>
+
 
     <link href="js/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -109,10 +124,6 @@
   <div class="span10" id="messages_container"></div>
 <div class="span2">
 <div id="users_container"></div>
-<div id="rename_panel">
-<input class="wf" id="rename_input" type="text">
-<button class="btn" type="button" id="rename_button">Rename</button>
-</div>
 <div id='lock_panel'>
 <button class="btn btn-success" type="button" id="lock_button">Lock Room</button>
 </div>
@@ -126,8 +137,8 @@
 <div id="bottomArea" class="footer">
 <table class="table mb0">
   <tr>
-    <td>
-      <a href="">test</a>
+    <td style="padding-right: 0px !important;")>
+      <button type="button" class="btn btn-link pr0 pl0" id="current_user_nick">...</button>
     </td>
     <td class="wf">
       <input id="main_input" type="text" class="wf mb0">
