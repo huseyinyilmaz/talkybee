@@ -112,7 +112,7 @@ $(function(){
 	    this.$el.append(messageView.$el);
 	}
     });
-    // XXX add current user view
+
     chatApp.CurrentUserView = Backbone.View.extend({
 	initialize: function(options){
 	    _.bindAll(this);
@@ -223,10 +223,13 @@ $(function(){
 			  
 			  case 'user_data':
 			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
-			  chatApp.user_code = data.code;
-			  chatApp.user_nick = data.nick;
-			  //Change user nick on ui
-			  $("#current_user_nick").text(chatApp.user_nick);
+			  if (data.code == chatApp.user_code){
+			      chatApp.user_code = data.code;
+			      chatApp.user_nick = data.nick;
+			      //Change user nick on ui
+			      $("#current_user_nick").text(chatApp.user_nick);
+			  }
+			      
 			  chatApp.add_user(data.code, data.nick);
 			  break;
 
