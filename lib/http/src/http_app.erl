@@ -19,7 +19,7 @@ start(_StartType, _StartArgs) ->
 			  [{directory, {priv_dir, bullet, []}},
 			   {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
 
-			 {"/bullet", bullet_handler, [{handler, stream_handler}]},
+			 {"/ws", bullet_handler, [{handler, stream_handler}]},
 			 
 			 {"/", cowboy_static,
 			  [{directory, <<"./www">>},

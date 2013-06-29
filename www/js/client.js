@@ -22,7 +22,7 @@ $(function(){
 
     window.chatClient = chatClient;
     var host = location.host;
-    var bullet = $.bullet('ws://' + host + '/bullet');
+    var bullet = $.bullet('ws://' + host + '/ws');
     chatClient.bullet = bullet;
 
     // Bind bullet events to chatClient events

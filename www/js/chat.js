@@ -146,9 +146,10 @@ $(function(){
 	    
 	    $('#edit_nick_input').focus()
 		.keypress(_.bind(function(e){
-		if(e.type=='keypress' && e.charCode==13)
-		    this.edit_nick();
-	    }, this));
+		    var k = e.which || e.keyCode;
+		    if(e.type=='keypress' && k==13)
+			this.edit_nick();
+		}, this));
 
 	}
     });
@@ -218,7 +219,7 @@ $(function(){
 			  //Change user nick on ui
 			  chatApp.currentUserView = new chatApp.CurrentUserView({
 			      model: chatApp.users.get(chatApp.user_code),
-			      el: '#current_user_nick'});
+			      el: '#current_user_nick_button'});
 			  
 			  chatApp.router.navigate(data.room_code);
 			  $('#main_input').focus()
@@ -267,7 +268,8 @@ $(function(){
     }    
     $('#send_button').click(send_message);
     $('#main_input').keypress(function(e){
-	if(e.type=='keypress' && e.charCode==13)
+	var k = e.which || e.keyCode;
+	if(e.type=='keypress' && k==13)
 	    send_message();
     });
 
