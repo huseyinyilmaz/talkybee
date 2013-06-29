@@ -128,6 +128,9 @@ $(function(){
 		Mustache.render(this.standard_template_text, {nick:this.model.get('nick')}));
 
 	    $("#current_user_nick_button").click(_.bind(this.render_edit, this));
+			      
+	    $("#main_input").focus();
+	    
 	},
 	edit_nick: function(){
 	    var nick = $("#edit_nick_input").val();
@@ -141,7 +144,8 @@ $(function(){
 	    $("#edit_nick_cancel_button").click(_.bind(this.render, this));
 	    $("#edit_nick_ok_button").click(_.bind(this.edit_nick, this));
 	    
-	    $('#edit_nick_input').keypress(_.bind(function(e){
+	    $('#edit_nick_input').focus()
+		.keypress(_.bind(function(e){
 		if(e.type=='keypress' && e.charCode==13)
 		    this.edit_nick();
 	    }, this));
@@ -212,13 +216,12 @@ $(function(){
 			  chatApp.add_user(data.user_code, data.user_nick);
 			  
 			  //Change user nick on ui
-			  // $("#current_user_nick").text(chatApp.user_nick);
 			  chatApp.currentUserView = new chatApp.CurrentUserView({
 			      model: chatApp.users.get(chatApp.user_code),
 			      el: '#current_user_nick'});
 			  
 			  chatApp.router.navigate(data.room_code);
-
+			  $('#main_input').focus()
 			  break;
 			  
 			  case 'user_data':
