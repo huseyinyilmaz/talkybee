@@ -17,6 +17,8 @@ $(function(){
 	    if(is_locked !== this.is_locked){
 		this.is_locked = is_locked;
 		$('#lock_button').text(is_locked ? 'Unlock room' : 'Lock room');
+		$('#lock_button').toggleClass('btn-success').toggleClass('btn-danger');
+
 	    }
 	    console.log(code,is_locked);
 	},
@@ -278,6 +280,6 @@ $(function(){
 	chatClient.send_message({type: chatApp.is_locked?'unlock_room' : 'lock_room',
 				 value: chatApp.room_code});});
 
-
+    $('#help_button').click(function(){introJs().start();});
     
 });

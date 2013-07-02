@@ -11,6 +11,8 @@
 
   <!-- Le styles -->
   <link href="js/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="js/intro/introjs.min.css" rel="stylesheet">
+  
   <link href="css/base.css" rel="stylesheet">
 
 
@@ -121,23 +123,40 @@
 <body>
 <div class="container-fluid">
 <div class="row-fluid">
-  <div class="span10" id="messages_container"></div>
+<div class="span3">
+  <h3 class="muted">Talkybee</h3>
+</div>
+<div class="span7"
+     data-step="2"
+     data-intro="Change name of the room from url and share it with your friends."
+     data-position="bottom">
+Share your url and talk to people.
+</div>
 <div class="span2">
-<div id="users_container"></div>
-<div id='lock_panel'>
-<button class="btn btn-success" type="button" id="lock_button">Lock Room</button>
-</div>
-
-</div>
-
+  <button class="btn btn-info" type="button" id="help_button">help</button>
 </div>
 </div>
 
+<div class="row-fluid">
+  <div class="span10" id="messages_container"></div>
+  <div class="span2">
+    <div id='lock_panel'
+         data-step="3"
+         data-intro="Once everybody is in, lock room to stop uninvited guesses"
+         data-position="left">
+      <button class="btn btn-danger" type="button" id="lock_button">Lock Room</button>
+    </div>
+    <div id="users_container"></div>
+  </div>
+</div>
 
-<div id="bottomArea" class="footer">
+<div id="bottomArea" class="footer row-fluid">
 <table class="table mb0">
   <tr>
-    <td style="padding-right: 0px !important;")>
+    <td style="padding-right: 0px !important;"
+        data-step="1"
+        data-intro="Click your nick to change it!"
+        data-position="right">
       <button type="button" class="btn btn-link pr0 pl0" id="current_user_nick_button">
 ...</button>
     </td>
@@ -149,6 +168,11 @@
     </td>
 </tr>
 </table>
+</div>
+
+
+</div>
+
 
 
 
@@ -157,6 +181,7 @@
 <script src="js/underscore/underscore.js"></script>
 <script src="js/backbone/backbone.js"></script>
 <script src="js/mustache/mustache.js"></script>
+<script src="js/intro/intro.min.js"></script>
 
 <script src="js/bullet/bullet.js"></script>
 
