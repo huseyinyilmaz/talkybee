@@ -214,6 +214,7 @@ $(function(){
 			  chatApp.room_code = data.room_code;
 			  chatApp.user_code = data.user_code;
 			  chatApp.user_nick = data.user_nick;
+			  chatApp.users.reset();
 			  chatApp.add_user(data.user_code, data.user_nick);
 			  
 			  //Change user nick on ui
