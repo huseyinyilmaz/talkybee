@@ -29,7 +29,13 @@ $(function(){
 				  nick:nick,
 				  message:message,
 				  log:false});
-	},
+	    
+            // keep the scroll to bottom
+            $("body").stop().animate({
+		scrollTop: $("body")[0].scrollHeight
+            }, 800);
+	},	    
+
 	
 	log: function(message){
 	    chatApp.messages.add({code:'',

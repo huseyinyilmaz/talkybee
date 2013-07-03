@@ -121,7 +121,7 @@
 </head>
 
 <body>
-<div class="container-fluid">
+<div class="container-fluid hf" id="messages_scroll">
 <div class="row-fluid">
 <div class="span3">
   <h3 class="muted">Talkybee</h3>
@@ -137,8 +137,12 @@ Share your url and talk to people.
 </div>
 </div>
 
-<div class="row-fluid">
-  <div class="span10" id="messages_container"></div>
+<div class="row-fluid" >
+  <div class="span10">
+    <div id="messages_container"></div>
+    <div id="push"></div>
+  </div>
+
   <div class="span2">
     <div id='lock_panel'
          data-step="3"
@@ -149,7 +153,6 @@ Share your url and talk to people.
     <div id="users_container"></div>
   </div>
 </div>
-
 <div id="bottomArea" class="footer row-fluid">
 <table class="table mb0">
   <tr>
@@ -166,10 +169,9 @@ Share your url and talk to people.
     <td>
       <button class="btn" type="button" id="send_button">Send</button>
     </td>
-</tr>
+  </tr>
 </table>
 </div>
-
 
 </div>
 
