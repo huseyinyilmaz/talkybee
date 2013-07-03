@@ -104,7 +104,7 @@
 
 <script type="text/mustache" id="user_nick_edit_template">
   <div class="input-append">
-    <input class="span2" id="edit_nick_input" type="text" >
+    <input id="edit_nick_input" type="text" >
     <button class="btn" type="button" id="edit_nick_ok_button">Ok</button>
     <button class="btn" type="button" id="edit_nick_cancel_button">Cancel</button>
   </div>  
@@ -156,12 +156,11 @@ Share your url and talk to people.
 <div id="bottomArea" class="footer row-fluid">
 <table class="table mb0">
   <tr>
-    <td style="padding-right: 0px !important;"
+    <td style="padding-right: 0px !important;" id="current_user_nick_button_container"
         data-step="1"
         data-intro="Click your nick to change it!"
-        data-position="right">
-      <button type="button" class="btn btn-link pr0 pl0" id="current_user_nick_button">
-...</button>
+        data-position="top">
+      <button type="button" class="btn btn-link pr0 pl0" id="current_user_nick_button">...loading</button>
     </td>
     <td class="wf">
       <input id="main_input" type="text" class="wf mb0">

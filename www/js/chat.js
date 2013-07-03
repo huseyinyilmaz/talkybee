@@ -228,7 +228,7 @@ $(function(){
 			  //Change user nick on ui
 			  chatApp.currentUserView = new chatApp.CurrentUserView({
 			      model: chatApp.users.get(chatApp.user_code),
-			      el: '#current_user_nick_button'});
+			      el: '#current_user_nick_button_container'});
 			  
 			  chatApp.router.navigate(data.room_code);
 			  $('#main_input').focus()
