@@ -270,6 +270,11 @@ $(function(){
 			  case 'message':
 			  chatApp.add_message(data.code, data.message, 'message');
 			  break;
+
+		          case 'error':
+			  chatApp.log('ERROR: ' + data.message );
+			  alert(data.message);
+			  break;
 		      };
 		  },
 		  chatClient);
