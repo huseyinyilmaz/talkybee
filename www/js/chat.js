@@ -185,13 +185,16 @@ $(function(){
 	    this.start_room('');
 	},
 	start_room: function(room_code){
-	    // Wait for dom and bullet to initialize
-	    setTimeout(function(){
+	    
+
+		// Wait for dom and bullet to initialize
+		setTimeout(function(){
 		chatClient.connect_to_room(room_code,
 					   chatApp.user_code,
 					   chatApp.user_nick);},
-		       1000);
+			   1000);
 	}
+	    
     });
     chatApp.router = new chatApp.Router();
     Backbone.history.start();
@@ -203,9 +206,12 @@ $(function(){
 		  function(){chatApp.log('Connected to main server');
 			     if(enable_logging && console)
 			     	 console.log('online');
-		             chatClient.connect_to_room(chatApp.room_code,
-							chatApp.user_code,
-							chatApp.user_nick);},
+			     // if this is initialization do not connect to room
+			     // it will be done by router
+			     if(chatApp.room_code)
+				 chatClient.connect_to_room(chatApp.room_code,
+							    chatApp.user_code,
+							    chatApp.user_nick);},
 		  chatClient);
     chatClient.on('ondisconnect',
 		  function(){chatApp.log('Connection lost with main server');
