@@ -50,6 +50,7 @@ This will download development dependencies. After this you can start server in 
 You can also run eunit tests with the following.
 
 ::
+
    $ make eunit
 
 .. |build| image:: https://travis-ci.org/huseyinyilmaz/talkybee.png
