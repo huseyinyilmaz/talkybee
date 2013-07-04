@@ -202,7 +202,10 @@ $(function(){
     chatClient.on('onopen',
 		  function(){chatApp.log('Connected to main server');
 			     if(enable_logging && console)
-			     	 console.log('online');},
+			     	 console.log('online');
+		             chatClient.connect_to_room(chatApp.room_code,
+							chatApp.user_code,
+							chatApp.user_nick);},
 		  chatClient);
     chatClient.on('ondisconnect',
 		  function(){chatApp.log('Connection lost with main server');
@@ -272,9 +275,8 @@ $(function(){
 	var main_input = $('#main_input');
 	chatClient.send_message({type: 'message',
 				 value:main_input.val()});
-	main_input.val('');
-	
-    }    
+	main_input.val('');}
+    
     $('#send_button').click(send_message);
     $('#main_input').keypress(function(e){
 	var k = e.which || e.keyCode;
