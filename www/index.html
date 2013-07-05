@@ -68,10 +68,26 @@
       .container .credit {
         margin: 20px 0;
       }
-      <!-- #users_container { -->
-      <!--   background-color:gray; -->
-      <!-- } -->
 
+
+    #main_side_panel{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 150px;
+    overflow: auto;
+  }
+
+  #main_message_container {
+    position: fixed;
+    top: 0;
+    right: 150px;
+    bottom: 60px;
+    left:0;
+    overflow: auto;
+
+  }
   </style>
 
 <!--------------->
@@ -141,13 +157,14 @@ Share your url and talk to people.
 </div>
 </div>
 
-<div class="row-fluid" >
-  <div class="span10">
+
+  <div id="main_message_container">
     <div id="messages_container"></div>
     <div id="push"></div>
   </div>
 
-  <div class="span2">
+
+  <div id="main_side_panel">
     <div id='lock_panel'
          data-step="3"
          data-intro="Once everybody is in, lock room to stop uninvited guesses"
@@ -156,7 +173,10 @@ Share your url and talk to people.
     </div>
     <div id="users_container"></div>
   </div>
-</div>
+
+
+
+
 <div id="bottomArea" class="footer row-fluid">
 <table class="table mb0">
   <tr>
