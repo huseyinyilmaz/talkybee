@@ -30,10 +30,6 @@ $(function(){
 				  message:message,
 				  log:false});
 	    
-            // keep the scroll to bottom
-            $("body").stop().animate({
-		scrollTop: $("body")[0].scrollHeight
-            }, 800);
 	},	    
 
 	
@@ -118,6 +114,11 @@ $(function(){
 	    var messageView = new chatApp.MessageView({model:model});
 	    messageView.render();
 	    this.$el.append(messageView.$el);
+            // keep the scroll to bottom
+            this.$el.stop().animate({
+		scrollTop: this.$el[0].scrollHeight
+            }, 800);
+	    
 	}
     });
 

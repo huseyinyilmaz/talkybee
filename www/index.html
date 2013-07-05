@@ -15,81 +15,6 @@
   
   <link href="css/base.css" rel="stylesheet">
 
-
-  <style type="text/css">
-
-      /* Sticky footer styles
-      -------------------------------------------------- */
-
-      html,
-      body {
-        height: 100%;
-        /* The html and body elements cannot have any padding or margin. */
-      }
-
-      /* Wrapper for page content to push down footer */
-      #wrap {
-        min-height: 100%;
-        height: auto !important;
-        height: 100%;
-        /* Negative indent footer by it's height */
-        margin: 0 auto -60px;
-      }
-
-      /* Set the fixed height of the footer here */
-      #push,
-      #footer {
-        height: 60px;
-      }
-      #footer {
-        background-color: #f5f5f5;
-      }
-
-      /* Lastly, apply responsive CSS fixes as necessary */
-      @media (max-width: 767px) {
-        #footer {
-          margin-left: -20px;
-          margin-right: -20px;
-          padding-left: 20px;
-          padding-right: 20px;
-        }
-      }
-
-
-
-      /* Custom page CSS
-      -------------------------------------------------- */
-      /* Not required for template or sticky footer method. */
-
-      .container {
-        width: auto;
-        max-width: 680px;
-      }
-      .container .credit {
-        margin: 20px 0;
-      }
-
-
-    #main_side_panel{
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 150px;
-    overflow: auto;
-  }
-
-  #main_message_container {
-    position: fixed;
-    top: 0;
-    right: 150px;
-    bottom: 60px;
-    left:0;
-    overflow: auto;
-
-  }
-  </style>
-
 <!--------------->
 <!-- templates -->
 <!--------------->
@@ -137,8 +62,10 @@
 </head>
 
 <body>
-<div class="container-fluid hf" id="messages_scroll">
-<div class="row-fluid">
+
+<!-- Header -->
+<div class="container-fluid">
+<div class="row-fluid h70 p5">
 <div class="span3">
   <h3 class="muted">Talkybee</h3>
 </div>
@@ -158,26 +85,24 @@ Share your url and talk to people.
 </div>
 
 
-  <div id="main_message_container">
-    <div id="messages_container"></div>
-    <div id="push"></div>
-  </div>
+<!-- Message_container -->
+<div id="messages_container" class="pf t70 b70 l0 r200 oa p20"></div>
 
-
-  <div id="main_side_panel">
+<!-- Side Panel -->
+<div class="pf t100 b70 w200 r0 oa">
     <div id='lock_panel'
          data-step="3"
          data-intro="Once everybody is in, lock room to stop uninvited guesses"
          data-position="left">
-      <button class="btn btn-danger" type="button" id="lock_button">Lock Room</button>
+      <button class="btn btn-danger mt10 mb10 ml10 mr10" type="button" id="lock_button">Lock Room</button>
     </div>
-    <div id="users_container"></div>
+    <div id="users_container" class="mt10 mb10 ml10 mr10"></div>
   </div>
 
 
 
-
-<div id="bottomArea" class="footer row-fluid">
+<!-- Bottom Area -->
+<div id="bottomArea" class="pf b0 h70 r0 l0 oa">
 <table class="table mb0">
   <tr>
     <td style="padding-right: 0px !important;" id="current_user_nick_button_container"
@@ -195,7 +120,6 @@ Share your url and talk to people.
   </tr>
 </table>
 </div>
-
 </div>
 
 
