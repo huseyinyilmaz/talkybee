@@ -47,7 +47,7 @@ $(function(){
     
     window.chatApp = chatApp;
 
-    var chatClient = window.chatClient;
+    var chatClient = window.publicatorChatClient;
 
     ////////////
     // Models //
@@ -186,13 +186,9 @@ $(function(){
 	    this.start_room('');
 	},
 	start_room: function(room_code){
-	    
-
 		// Wait for dom and bullet to initialize
 		setTimeout(function(){
-		chatClient.connect_to_room(room_code,
-					   chatApp.user_code,
-					   chatApp.user_nick);},
+		chatClient.connect_to_room(room_code);},
 			   1000);
 	}
 	    
@@ -274,7 +270,7 @@ $(function(){
 
 		          case 'error':
 			  chatApp.log('ERROR: ' + data.message );
-			  alert(data.message);
+			  alert(data.data);
 			  break;
 		      };
 		  },
