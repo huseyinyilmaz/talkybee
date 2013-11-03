@@ -190,9 +190,10 @@ $(function(){
 	    chatApp.router.navigate(room_code);
 	},
 	start_room: function(room_code){
+	    
 	    // Wait for dom and bullet to initialize
 	    setTimeout(function(){
-		chatClient.connect_to_room(room_code);},
+		chatApp.client = publicatorChat.get_client(room_code);},
 		       1000);
 	}
 	    
