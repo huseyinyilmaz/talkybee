@@ -1,3 +1,5 @@
+"use strict";
+
 $(function(){
     window.enable_logging = true;
     //////////////////////
@@ -47,7 +49,7 @@ $(function(){
     
     window.chatApp = chatApp;
 
-    var chatClient = window.publicatorChatClient;
+    var chatClient = window.publicatorChat.get_client();
 
     ////////////
     // Models //
@@ -173,7 +175,7 @@ $(function(){
 	el: '#messages_container'
     });
     
-    chatApp.currentUserView = 
+    chatApp.currentUserView = 1;
     
     ////////////
     // Router //
@@ -183,13 +185,15 @@ $(function(){
 	    '': 'init',
 	    ':room_code': 'start_room'},
 	init: function(){
-	    this.start_room('');
+	    console.log("XXXhere")
+	    var room_code = Math.random().toString(36).substring(7);
+	    chatApp.router.navigate(room_code);
 	},
 	start_room: function(room_code){
-		// Wait for dom and bullet to initialize
-		setTimeout(function(){
+	    // Wait for dom and bullet to initialize
+	    setTimeout(function(){
 		chatClient.connect_to_room(room_code);},
-			   1000);
+		       1000);
 	}
 	    
     });
