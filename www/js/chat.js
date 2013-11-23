@@ -49,7 +49,7 @@ $(function(){
     
     window.chatApp = chatApp;
 
-    var chatClient = window.publicatorChat.get_client();
+    var chatClient = null;
 
     ////////////
     // Models //
@@ -190,7 +190,6 @@ $(function(){
 	    chatApp.router.navigate(room_code);
 	},
 	start_room: function(room_code){
-	    
 	    // Wait for dom and bullet to initialize
 	    setTimeout(function(){
 		chatApp.client = publicatorChat.get_client(room_code);},
@@ -223,7 +222,7 @@ $(function(){
     chatClient.on('onmessage',
 		  function(data){
 		      if(enable_logging && console)
-			  console.log('response', data);
+			  console.log('chat: response', data);
 		      switch(data.type){
 			  case 'heartbeat':
 			  break;
