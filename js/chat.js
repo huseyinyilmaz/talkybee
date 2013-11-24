@@ -5,6 +5,13 @@ $(function(){
     //////////////////////
     // Create namespace //
     //////////////////////
+    var logger = {
+	log:function(msg1,msg2){
+	    if(enable_logging && console)
+		console.log('chatApp: ', msg1, msg2);
+	}
+    };
+    
     var chatApp = {
 	room_code: '',
 	user_code: '',
@@ -177,112 +184,86 @@ $(function(){
     
     chatApp.currentUserView = 1;
     
-    ////////////
-    // Router //
-    ////////////
-    chatApp.Router = Backbone.Router.extend({
-	routes: {
-	    '': 'init',
-	    ':room_code': 'start_room'},
-	init: function(){
-	    console.log("XXXhere")
-	    var room_code = Math.random().toString(36).substring(7);
-	    chatApp.router.navigate(room_code);
-	},
-	start_room: function(room_code){
-	    // Wait for dom and bullet to initialize
-	    setTimeout(function(){
-		chatApp.client = publicatorChat.get_client(room_code);},
-		       1000);
-	}
-	    
-    });
-    chatApp.router = new chatApp.Router();
-    Backbone.history.start();
 
     ////////////////////
     // Event handlers //
     ////////////////////
-    chatClient.on('onopen',
-		  function(){chatApp.log('Connected to main server');
-			     if(enable_logging && console)
-			     	 console.log('online');
-			     // if this is initialization do not connect to room
-			     // it will be done by router
-			     if(chatApp.room_code)
-				 chatClient.connect_to_room(chatApp.room_code,
-							    chatApp.user_code,
-							    chatApp.user_nick);},
-		  chatClient);
-    chatClient.on('ondisconnect',
-		  function(){chatApp.log('Connection lost with main server');
-			     if(enable_logging && console)
-				 console.log('offline');},
-		  chatClient);
-    chatClient.on('onmessage',
-		  function(data){
-		      if(enable_logging && console)
-			  console.log('chat: response', data);
-		      switch(data.type){
-			  case 'heartbeat':
-			  break;
-			  case 'connected_to_room':
-			  chatApp.log('Connected to room ' + data.room_code);
-			  chatApp.log('Current user data: ' + data.user_code + ' - ' + data.user_nick);
-			  chatApp.room_code = data.room_code;
-			  chatApp.user_code = data.user_code;
-			  chatApp.user_nick = data.user_nick;
-			  chatApp.users.reset();
-			  chatApp.add_user(data.user_code, data.user_nick);
+    function init(room_code){
+	chatApp.client = publicatorChat.get_client(room_code);
+	chatApp.client.onopen(_.bind(function(){chatApp.log('Connected to main server');
+						logger.log('online');},
+				     chatClient));
+
+    }
+    // chatClient.on('ondisconnect',
+    // 		  function(){chatApp.log('Connection lost with main server');
+    // 			     if(enable_logging && console)
+    // 				 console.log('offline');},
+    // 		  chatClient);
+    // chatClient.on('onmessage',
+    // 		  function(data){
+    // 		      if(enable_logging && console)
+    // 			  console.log('chat: response', data);
+    // 		      switch(data.type){
+    // 			  case 'heartbeat':
+    // 			  break;
+    // 			  case 'connected_to_room':
+    // 			  chatApp.log('Connected to room ' + data.room_code);
+    // 			  chatApp.log('Current user data: ' + data.user_code + ' - ' + data.user_nick);
+    // 			  chatApp.room_code = data.room_code;
+    // 			  chatApp.user_code = data.user_code;
+    // 			  chatApp.user_nick = data.user_nick;
+    // 			  chatApp.users.reset();
+    // 			  chatApp.add_user(data.user_code, data.user_nick);
 			  
-			  //Change user nick on ui
-			  chatApp.currentUserView = new chatApp.CurrentUserView({
-			      model: chatApp.users.get(chatApp.user_code),
-			      el: '#current_user_nick_button_container'});
+    // 			  //Change user nick on ui
+    // 			  chatApp.currentUserView = new chatApp.CurrentUserView({
+    // 			      model: chatApp.users.get(chatApp.user_code),
+    // 			      el: '#current_user_nick_button_container'});
 			  
-			  chatApp.router.navigate(data.room_code);
-			  $('#main_input').focus()
-			  break;
+    // 			  chatApp.router.navigate(data.room_code);
+    // 			  $('#main_input').focus()
+    // 			  break;
 			  
-			  case 'user_data':
-			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
-			  if (data.code == chatApp.user_code){
-			      chatApp.user_code = data.code;
-			      chatApp.user_nick = data.nick;
-			      //Change user nick on ui
-			      $("#current_user_nick").text(chatApp.user_nick);
-			  }
+    // 			  case 'user_data':
+    // 			  chatApp.log('New user data: ' + data.code + ' - ' + data.nick);
+    // 			  if (data.code == chatApp.user_code){
+    // 			      chatApp.user_code = data.code;
+    // 			      chatApp.user_nick = data.nick;
+    // 			      //Change user nick on ui
+    // 			      $("#current_user_nick").text(chatApp.user_nick);
+    // 			  }
 			      
-			  chatApp.add_user(data.code, data.nick);
-			  break;
+    // 			  chatApp.add_user(data.code, data.nick);
+    // 			  break;
 
-			  case 'room_data':
-			  chatApp.log('New room data: ' +
-				      data.code +
-				      ' Is room locked(' + data.is_locked + ')' );
-			  chatApp.update_room(data.code, data.is_locked)
-			  break;
+    // 			  case 'room_data':
+    // 			  chatApp.log('New room data: ' +
+    // 				      data.code +
+    // 				      ' Is room locked(' + data.is_locked + ')' );
+    // 			  chatApp.update_room(data.code, data.is_locked)
+    // 			  break;
 
-			  case 'user_removed':
-			  chatApp.log('Remove user: ' + data.code);
-			  chatApp.remove_user(data.code);
-			  break;
+    // 			  case 'user_removed':
+    // 			  chatApp.log('Remove user: ' + data.code);
+    // 			  chatApp.remove_user(data.code);
+    // 			  break;
 
-			  case 'message':
-			  chatApp.add_message(data.code, data.message, 'message');
-			  break;
+    // 			  case 'message':
+    // 			  chatApp.add_message(data.code, data.message, 'message');
+    // 			  break;
 
-		          case 'error':
-			  chatApp.log('ERROR: ' + data.message );
-			  alert(data.data);
-			  break;
-		      };
-		  },
-		  chatClient);
+    // 		          case 'error':
+    // 			  chatApp.log('ERROR: ' + data.message );
+    // 			  alert(data.data);
+    // 			  break;
+    // 		      };
+    // 		  },
+    // 		  chatClient);
     
-    chatClient.on('onheartbeat',
-		  function(){this.send_message({type:'heartbeat', value:'ping'});},
-		  chatClient);
+    // chatClient.on('onheartbeat',
+    // 		  function(){this.send_message({type:'heartbeat', value:'ping'});},
+    // 		  chatClient);
     function send_message(){
 	var main_input = $('#main_input');
 	chatClient.send_message({type: 'message',
@@ -301,5 +282,22 @@ $(function(){
 				 value: chatApp.room_code});});
 
     $('#help_button').click(function(){introJs().start();});
+
+
+    ////////////
+    // Router //
+    ////////////
+    chatApp.Router = Backbone.Router.extend({
+	routes: {
+	    '': 'init',
+	    ':room_code': 'start_room'},
+	init: function(){
+	    var room_code = Math.random().toString(36).substring(7);
+	    chatApp.log("No room code!, New room code: " + room_code);
+	    chatApp.router.navigate(room_code);
+	},
+	start_room: init});
+    chatApp.router = new chatApp.Router();
+    Backbone.history.start();
     
 });
