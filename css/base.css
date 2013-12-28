@@ -14,7 +14,7 @@
 .show{display:inline}
 .oh{overflow:hidden;}
 .oa{overflow:auto;}
-
+.hi{height:inherit;}
 /* left */
 .l0{left:0;}
 /* right */
@@ -59,6 +59,8 @@
 .p5{padding: 5px;}
 .p10{padding: 10px;}
 .p20{padding: 20px;}
+.p25{padding: 25px;}
+
 /* margin */
 .mt2{margin-top:2px;}
 .mt5{margin-top:5px;}
@@ -100,6 +102,7 @@
 .s18{font-size:18px;}
 .s20{font-size:20px;}
 .s22{font-size:22px;}
+.s30{font-size:30px;}
 .s40{font-size:40px;}
 
 .i{font-style:italic;}
@@ -221,9 +224,9 @@ pre {
 }
 
 body{
-    font-family: Arial;
-    line-height: 20px;
-    font-size:14px;
+    font-family: 'Alegreya Sans', sans-serif;
+    line-height: 22px;
+    font-size:20px;
 }
 
 .container{
@@ -351,4 +354,25 @@ body{
 
 .omega {
 	margin-right: 0;
+}
+
+
+/**************/
+/* Font types */
+/**************/
+.message-font{
+    font-family: 'Economica', sans-serif;
+}
+.base-font{
+    font-family: 'Alegreya Sans', sans-serif;
+}
+
+.title-font{
+    font-family: 'Henny Penny', cursive;
+}
+
+
+#main_input{
+    font-size: 30px !important;
+    height: inherit;
 }

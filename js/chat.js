@@ -18,23 +18,20 @@
 	user_code: '',
 	user_nick: '',
 	is_locked: false,
-	add_user: function(code, nick){
-            // Existing users will be ignored
+	update_user: function(code, nick){
+            // Existing users will not be duplicated
             chatApp.users.add(
                 {id: code,
                  nick: nick,
                  is_current_user: code==this.user_code},
                 {merge: true});
             if(code==this.user_code){
-                var user_list = chatApp.users.where({is_current_user: true, id: code});
-                if(user_list){
-                    var user = user_list[0];
-                    if(chatApp.currentUserView===undefined){
-                        chatApp.currentUserView = new chatApp.CurrentUserView({
-                            model: user,
-                            el:'#current_user_nick_button_container'});
-                    }else{
-                    }
+                var user = chatApp.users.get(code);
+                if(user && chatApp.currentUserView===undefined){
+                    chatApp.currentUserView = new chatApp.CurrentUserView({
+                        model: user,
+                        el:'#current_user_nick_button_container'});
+                }else{
                 }
             }
 	},
@@ -56,7 +53,7 @@
             chatApp.messages.add({code:code,
                                   nick:nick,
                                   message:message,
-                                  log:false});
+                                  type:'message'});
 	},
 
 	
@@ -64,7 +61,14 @@
             chatApp.messages.add({code:'',
                                   nick:'LOGGER',
                                   message:message,
-                                  log: true});
+                                  type:'log'});
+        },
+	error: function(message){
+            chatApp.messages.add({code:'',
+                                  nick:'LOGGER',
+                                  message:message,
+                                  type: 'error'});
+            
 	},
 	
 	remove_user:function(code){
@@ -120,10 +124,18 @@
             _.bindAll(this);
 	},
 	render: function(){
+            var msg = this.model.toJSON();
             this.$el.html(
 		Mustache.render(
                     this.template_text,
-                    this.model.toJSON()
+                    {code:msg.code,
+                     nick:msg.nick,
+                     message:msg.message,
+                     type:msg.type,
+                     is_message:function(){return this.type=='message';},
+                     is_log:function(){return this.type=='log';},
+                     is_error:function(){return this.type=='error';}
+                    }
 		)
             );
             return this;
@@ -212,29 +224,40 @@
                 },
 		chatApp));
         chatApp.client.oninfo(
-            _.bind(
 		function(data){
                     switch(data.type){
                     case 'user_change':
                         _.each(chatApp.client.users,
-                               function(user){
-                                   chatApp.add_user(user.code, user.nick);
+                               function(user, user_code){
+                                   chatApp.update_user(user.code, user.nick);
                                });
+                        var removed_users = chatApp.users.filter(function(model){
+                            return chatApp.client.users[model.id] == undefined;
+                        });
+                        chatApp.users.remove(removed_users);
                         break;
                     default:
                         console.log('chat-Invalid info case', data);
                     }
                     
-                    chatApp.log('info:' + data.type);
+                    console.log('info:' + data.type);
                     
-                },
-		chatApp));
+                });
         chatApp.client.onmessage(
-            _.bind(
 		function(data){
                     chatApp.add_message(data.code, data.data);
-                },
-		chatApp));
+                });
+        chatApp.client.onerror(
+		function(data){
+                    //XXX disable everything
+                    if(data.data==='invalid_channel_code'){
+                        chatApp.error('Current room name is invalid. Channel codes must be consist of consist of only numbers, leters and underscore \'_\' character.');
+                    }else{
+                        console.error(data);
+                        alert('There was a problem with your session.' +
+                              ' Please refresh your page.');
+                    }
+                });
         
     }
     function send_message(){
@@ -248,10 +271,6 @@
 	if(e.type=='keypress' && k==13)
             send_message();
     });
-
-    $('#lock_button').click(function(){
-	chatClient.send_message({type: chatApp.is_locked?'unlock_room' : 'lock_room',
-                                 value: chatApp.room_code});});
 
     $('#help_button').click(function(){introJs().start();});
 
