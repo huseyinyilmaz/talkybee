@@ -271,7 +271,9 @@
     }
     function send_message(){
 	var main_input = $('#main_input');
-	chatApp.client.send_message(main_input.val());
+        var msg = main_input.val();
+        if(msg)
+	    chatApp.client.send_message(msg);
 	main_input.val('');}
     
     $('#send_button').click(send_message);
