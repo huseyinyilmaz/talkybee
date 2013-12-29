@@ -287,7 +287,7 @@
 	init: function(){
             var room_code = Math.random().toString(36).substring(7);
             chatApp.log("No room code!, New room code: " + room_code);
-            chatApp.router.navigate(room_code);
+            chatApp.router.navigate(room_code, {trigger: true, replace: true});
 	},
 	start_room: init});
     chatApp.router = new chatApp.Router();
