@@ -213,7 +213,9 @@
     // Event handlers //
     ////////////////////
     function init(room_code){
-	chatApp.client = publicatorChat.get_client(room_code);
+        // publicator.set_host('localhost:8766');
+        publicator.set_host('www.talkybee.com:8766');
+	chatApp.client = publicator.chat.get_client(room_code);
 	chatApp.client.onopen(
             _.bind(
 		function(res){
