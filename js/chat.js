@@ -53,7 +53,8 @@
             chatApp.messages.add({code:code,
                                   nick:nick,
                                   message:message,
-                                  type:'message'});
+                                  type:'message'
+                                 });
 	},
 
 	
@@ -134,7 +135,13 @@
                      type:msg.type,
                      is_message:function(){return this.type=='message';},
                      is_log:function(){return this.type=='log';},
-                     is_error:function(){return this.type=='error';}
+                     is_error:function(){return this.type=='error';},
+                     linkify: function (){
+                         return function (text, render){
+                             console.log(render(text));
+                             return linkify(render(text));
+                         };
+                     }                     
                     }
 		)
             );

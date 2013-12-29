@@ -35,7 +35,7 @@
 
 <script type="text/mustache" id="message_template">
 {{#is_message}}
-  {{nick}} - <span class="message-font s20">{{message}}</span>
+  {{nick}} - <span class="message-font s20">{{#linkify}}{{message}} {{/linkify}} </span>
 {{/is_message}}
 {{#is_log}}
   <small class="muted">{{nick}} - {{message}}</small>
@@ -136,6 +136,8 @@ src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="F
 <script src="js/mustache/mustache.js"></script>
 <script src="js/intro/intro.min.js"></script>
 <script src="js/json/json2.js"></script>
+<script src="js/ba-linkify.min.js"></script>
+
 <!-- <script src="http://localhost:8766/js/publicator-client.js"></script>
 <script src="http://localhost:8766/js/chat-client.js"></script> -->
 <script src="http://www.talkybee.com:8766/js/publicator-client.js"></script>
