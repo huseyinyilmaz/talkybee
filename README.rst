@@ -1,6 +1,5 @@
 talkybee
 ========
-|build|_
 
 An instant chat room service. (Source code for http://www.talkybee.com)
 
@@ -53,5 +52,3 @@ You can also run eunit tests with the following.
 
    $ make eunit
 
-.. |build| image:: https://travis-ci.org/huseyinyilmaz/talkybee.png
-.. _build: https://travis-ci.org/huseyinyilmaz/talkybee
