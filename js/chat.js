@@ -12,6 +12,14 @@
                     console.log('chatApp: ', msg1, msg2);
             }
 	};
+
+        function get_time_string(){
+            var date = new Date();
+            var hour = date.getHours();
+            var minute = date.getMinutes();
+            return (hour<10 ? '0':'') + hour + ':' + (minute<10?'0':'') + minute;
+            
+        }
     
     var chatApp = {
 	room_code: '',
@@ -50,11 +58,10 @@
 	add_message: function(code,message){
             var user = chatApp.users.get(code);
             var nick = user.get('nick');
-            var date = new Date();
             chatApp.messages.add({code:code,
                                   nick:nick,
                                   message:message,
-                                  time: date.getHours() + ':' + date.getMinutes(),
+                                  time: get_time_string(),
                                   type:'message'
                                  });
             $.titleAlert('######################', {
@@ -66,19 +73,17 @@
 
 	
 	log: function(message){
-            var date = new Date();
             chatApp.messages.add({code:'',
                                   nick:'LOGGER',
                                   message:message,
-                                  time: date.getHours() + ':' + date.getMinutes(),
+                                  time: get_time_string(),
                                   type:'log'});
         },
 	error: function(message){
-            var date = new Date();
             chatApp.messages.add({code:'',
                                   nick:'LOGGER',
                                   message:message,
-                                  time: date.getHours() + ':' + date.getMinutes(),
+                                  time: get_time_string(),
                                   type: 'error'});
             
 	},
