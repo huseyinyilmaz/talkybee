@@ -55,6 +55,11 @@
                                   message:message,
                                   type:'message'
                                  });
+            $.titleAlert('######################', {
+                requireBlur:true,
+                stopOnFocus:true,
+                duration:10000,
+                interval:500});
 	},
 
 	
