@@ -376,3 +376,8 @@ body{
     font-size: 30px !important;
     height: inherit;
 }
+
+
+.message{
+    list-style-type: none;
+}
