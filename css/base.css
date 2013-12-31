@@ -114,9 +114,13 @@
 .pink{color: #ff0998;}
 .green{color: #96BE0D;}
 .gray{color: #b1b1b1;}
+.darkgray{color:#626262}
 .bw{background-color:#fff;}
 .bb{background-color:#000;}
 .bp{background-color:#cd037a;}
+.bl{background-color:#b9b9b9;}
+.bbd{background-color:#F3F7FB}
+.bbl{background-color:#FAFEFF}
 .u{text-decoration: underline;}
 .hu:hover{text-decoration:underline;}
 .tal{text-align:left;}
@@ -380,4 +384,9 @@ body{
 
 .message{
     list-style-type: none;
+}
+
+.msg-td{
+    border-bottom: 1px solid gray;
+
 }

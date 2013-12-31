@@ -134,7 +134,7 @@
 	}});
     
     chatApp.MessageView = Backbone.View.extend({
-	tagName: 'li',
+	tagName: 'tr',
 	className: 'message',
 	template_text: $('#message_template').html(),
 	initialize: function(){
@@ -150,6 +150,7 @@
                      message:msg.message,
                      type:msg.type,
                      time:msg.time,
+                     is_current_user: msg.code === chatApp.user_code,
                      is_message:function(){return this.type=='message';},
                      is_log:function(){return this.type=='log';},
                      is_error:function(){return this.type=='error';},

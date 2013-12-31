@@ -35,13 +35,23 @@
 
 <script type="text/mustache" id="message_template">
  {{#is_message}}
- <span class="label label-default">{{nick}}</span> - {{time}} - <span class="message-font">{{#linkify}}{{message}} {{/linkify}} </span>
+ <td class="{{^is_current_user}}bl{{/is_current_user}}
+            {{#is_current_user}}bbd{{/is_current_user}}
+            darkgray pl10 pr10 msg-td">{{nick}}</td>
+ <td class="wf pl10 msg-td
+            {{#is_current_user}}bbl{{/is_current_user}}">{{#linkify}}{{message}} {{/linkify}}</td>
+ <td class="msg-td">{{time}}</td>
 {{/is_message}}
-{{#is_log}}
-  <small class="muted">{{nick}}- {{time}} - {{message}}</small>
+ {{#is_log}}
+ <td colspan="2" class="wf msg-td">{{message}}</td>
+ <td class="msg-td">{{time}}</td>
+ </small>
 {{/is_log}}
 {{#is_error}}
-  <small class="text-error">{{nick}} - {{time}} - {{message}}</small>
+ <td colspan="2" class="wf msg-td">{{message}}</td>
+ <td class="msg-td">{{time}}</td>
+
+ <small class="text-error">{{nick}} - {{time}} - {{message}}</small>
 {{/is_error}}
   
 </script>
@@ -96,7 +106,9 @@ src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="F
 
 
 <!-- Message_container -->
-<div id="messages_container" class="pf t70 b70 l0 r200 oa p20"></div>
+<div class="pf t70 b70 l0 r200 oa p20">
+  <table id="messages_container" class="wf"></table>
+</div>
 
 <!-- Side Panel -->
 <div class="pf t100 b70 w200 r0 oa">
