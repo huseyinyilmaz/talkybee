@@ -58,7 +58,7 @@
             $.titleAlert('######################', {
                 requireBlur:true,
                 stopOnFocus:true,
-                duration:10000,
+                duration:0,
                 interval:500});
 	},
 
