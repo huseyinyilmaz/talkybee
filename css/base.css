@@ -224,9 +224,9 @@ pre {
 }
 
 body{
-    font-family: 'Alegreya Sans', sans-serif;
-    line-height: 22px;
-    font-size:20px;
+    /* font-family: 'Alegreya Sans', sans-serif; */
+    /* line-height: 22px; */
+    /* font-size:20px; */
 }
 
 .container{
@@ -361,7 +361,7 @@ body{
 /* Font types */
 /**************/
 .message-font{
-    font-family: 'Economica', sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 .base-font{
     font-family: 'Alegreya Sans', sans-serif;
