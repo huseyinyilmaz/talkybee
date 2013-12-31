@@ -34,14 +34,14 @@
 </script>
 
 <script type="text/mustache" id="message_template">
-{{#is_message}}
-  {{nick}} - <span class="message-font s20">{{#linkify}}{{message}} {{/linkify}} </span>
+ {{#is_message}}
+ <span class="label label-default">{{nick}}</span> - {{time}} - <span class="message-font s20">{{#linkify}}{{message}} {{/linkify}} </span>
 {{/is_message}}
 {{#is_log}}
-  <small class="muted">{{nick}} - {{message}}</small>
+  <small class="muted">{{nick}}- {{time}} - {{message}}</small>
 {{/is_log}}
 {{#is_error}}
-  <small class="text-error">{{nick}} - {{message}}</small>
+  <small class="text-error">{{nick}} - {{time}} - {{message}}</small>
 {{/is_error}}
   
 </script>

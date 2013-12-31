@@ -50,9 +50,11 @@
 	add_message: function(code,message){
             var user = chatApp.users.get(code);
             var nick = user.get('nick');
+            var date = new Date();
             chatApp.messages.add({code:code,
                                   nick:nick,
                                   message:message,
+                                  time: date.getHours() + ':' + date.getMinutes(),
                                   type:'message'
                                  });
             $.titleAlert('######################', {
@@ -64,15 +66,19 @@
 
 	
 	log: function(message){
+            var date = new Date();
             chatApp.messages.add({code:'',
                                   nick:'LOGGER',
                                   message:message,
+                                  time: date.getHours() + ':' + date.getMinutes(),
                                   type:'log'});
         },
 	error: function(message){
+            var date = new Date();
             chatApp.messages.add({code:'',
                                   nick:'LOGGER',
                                   message:message,
+                                  time: date.getHours() + ':' + date.getMinutes(),
                                   type: 'error'});
             
 	},
@@ -138,6 +144,7 @@
                      nick:msg.nick,
                      message:msg.message,
                      type:msg.type,
+                     time:msg.time,
                      is_message:function(){return this.type=='message';},
                      is_log:function(){return this.type=='log';},
                      is_error:function(){return this.type=='error';},
