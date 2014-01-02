@@ -29,12 +29,19 @@
 	user_nick: '',
 	is_locked: false,
 	update_user: function(code, nick){
+            var previous_user = chatApp.users.get(code);
+            if(previous_user && previous_user.get('nick') !== nick){
+                chatApp.log(previous_user.get('id') + ' changed his nick to ' + nick);
+            }else if(!previous_user){
+                chatApp.log('New user joined chat (' + nick + ')');
+            }
             // Existing users will not be duplicated
             chatApp.users.add(
                 {id: code,
                  nick: nick,
                  is_current_user: code==this.user_code},
                 {merge: true});
+
             if(code==this.user_code){
                 var user = chatApp.users.get(code);
                 if(user && chatApp.currentUserView===undefined){
