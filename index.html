@@ -40,7 +40,8 @@
             darkgray pl10 pr10 msg-td">{{nick}}</td>
  <td class="wf pl10 msg-td
             {{#is_current_user}}bbl{{/is_current_user}}">{{#linkify}}{{message}} {{/linkify}}</td>
- <td class="msg-td">{{time}}</td>
+ <td class="msg-td
+            {{#is_current_user}}bbl{{/is_current_user}}">{{time}}</td>
 {{/is_message}}
  {{#is_log}}
  <td colspan="2" class="wf msg-td">{{message}}</td>
