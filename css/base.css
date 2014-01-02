@@ -118,7 +118,7 @@
 .bw{background-color:#fff;}
 .bb{background-color:#000;}
 .bp{background-color:#cd037a;}
-.bl{background-color:#b9b9b9;}
+.bl{background-color:#EEEEEE;}
 .bbd{background-color:#F3F7FB}
 .bbl{background-color:#FAFEFF}
 .u{text-decoration: underline;}
@@ -388,5 +388,4 @@ body{
 
 .msg-td{
     border-bottom: 1px solid #EEEEEE;
-
 }
