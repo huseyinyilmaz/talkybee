@@ -208,7 +208,8 @@
 	edit_nick: function(){
             var nick = $("#edit_nick_input").val();
             if(nick.match(chatApp.nick_regex) &&
-               nick.length<=chatApp.nick_size){
+               nick.length <= chatApp.nick_size &&
+               nick.length > 0){
                 chatApp.client.rename(nick);
             }else{
                 chatApp.error("Error - Nick should be consist of numbers, letters or _ character." +
