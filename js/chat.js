@@ -168,7 +168,8 @@
     });
 
     chatApp.MessagesView = Backbone.View.extend({
-	initialize: function(){
+	initialize: function(options){
+            this.$scroll_el = $(options.scroll_el);
             _.bindAll(this);
             this.collection.bind('add', this.addMessage);
 	},
@@ -177,8 +178,8 @@
             messageView.render();
             this.$el.append(messageView.$el);
             // keep the scroll to bottom
-            this.$el.stop().animate({
-		scrollTop: this.$el[0].scrollHeight
+            this.$scroll_el.stop().animate({
+		scrollTop: this.$scroll_el[0].scrollHeight
             }, 800);
 	}
     });
@@ -231,7 +232,8 @@
     
         chatApp.messagesView = new chatApp.MessagesView({
             collection: chatApp.messages,
-            el: '#messages_container'
+            el: '#messages_container',
+            scroll_el: '#messages_scroll_container'
         });
     
     ////////////////////
@@ -259,7 +261,7 @@
                                    chatApp.update_user(user.code, user.nick);
                                });
                         var removed_users = chatApp.users.filter(function(model){
-                            return chatApp.client.users[model.id] == undefined;
+                            return chatApp.client.users[model.id] === undefined;
                         });
                         chatApp.users.remove(removed_users);
                         break;
@@ -291,7 +293,7 @@
 	var main_input = $('#main_input');
         var msg = main_input.val();
         if(msg)
-	    chatApp.client.send_message(msg);
+            chatApp.client.send_message(msg);
 	main_input.val('');}
     
     $('#send_button').click(send_message);
