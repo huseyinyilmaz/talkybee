@@ -212,6 +212,7 @@
                nick.length > 0){
                 chatApp.client.rename(nick);
                 $.cookie('talkybee_nick', nick);
+                $('.msg-nick-' + chatApp.user_code).text(nick);
             }else{
                 chatApp.error("Error - Nick should be consist of numbers, letters or _ character." +
                              "Also its length should be smaller than " + chatApp.nick_size);
