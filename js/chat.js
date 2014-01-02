@@ -20,8 +20,10 @@
             return (hour<10 ? '0':'') + hour + ':' + (minute<10?'0':'') + minute;
             
         }
-    
+
     var chatApp = {
+        nick_regex: /^[a-z0-9_]+$/i,
+        nick_size: 20,
 	room_code: '',
 	user_code: '',
 	user_nick: '',
@@ -205,9 +207,16 @@
 	},
 	edit_nick: function(){
             var nick = $("#edit_nick_input").val();
-            chatApp.client.rename(nick);
+            if(nick.match(chatApp.nick_regex) &&
+               nick.length<=chatApp.nick_size){
+                chatApp.client.rename(nick);
+            }else{
+                chatApp.error("Error - Nick should be consist of numbers, letters or _ character." +
+                             "Also its length should be smaller than " + chatApp.nick_size);
+            };
             //XXX: this must be done after data came back
             this.render();
+
 	},
 	render_edit: function(){
             this.$el.html(
