@@ -211,6 +211,7 @@
                nick.length <= chatApp.nick_size &&
                nick.length > 0){
                 chatApp.client.rename(nick);
+                $.cookie('talkybee_nick', nick);
             }else{
                 chatApp.error("Error - Nick should be consist of numbers, letters or _ character." +
                              "Also its length should be smaller than " + chatApp.nick_size);
@@ -260,6 +261,10 @@
                     this.room_code = res.room_code;
                     this.user_code = res.user_code;
                     this.user_nick = res.user_nick;
+                    var cookie_nick = $.cookie('talkybee_nick');
+                    if(cookie_nick){
+                        chatApp.client.rename(cookie_nick);
+                    }
                 },
 		chatApp));
         chatApp.client.oninfo(
