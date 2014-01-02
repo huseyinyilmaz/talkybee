@@ -28,6 +28,7 @@
 	user_code: '',
 	user_nick: '',
 	is_locked: false,
+        is_writing: false,
 	update_user: function(code, nick){
             var previous_user = chatApp.users.get(code);
             if(previous_user && previous_user.get('nick') !== nick){
@@ -52,18 +53,9 @@
                 }
             }
 	},
-        
-	update_room: function(code, is_locked){
-            // if lock value did not changed do
-            // not do anything
-            if(is_locked !== this.is_locked){
-		this.is_locked = is_locked;
-		$('#lock_button').text(is_locked ? 'Unlock room' : 'Lock room');
-		$('#lock_button').toggleClass('btn-success').toggleClass('btn-danger');
-
-            }
-            console.log(code,is_locked);
-	},
+        set_writing: function(is_writing){
+            console.log('is_writing', is_writing);
+        },
 	add_message: function(code,message){
             var user = chatApp.users.get(code);
             var nick = user.get('nick');
@@ -223,9 +215,10 @@
             }else{
                 chatApp.error("Error - Nick should be consist of numbers, letters or _ character." +
                              "Also its length should be smaller than " + chatApp.nick_size);
-            };
+            }
+            
             //XXX: this must be done after data came back
-            this.render();
+            // this.render();
 
 	},
 	render_edit: function(){
@@ -322,8 +315,14 @@
     $('#send_button').click(send_message);
     $('#main_input').keypress(function(e){
 	var k = e.which || e.keyCode;
-	if(e.type=='keypress' && k==13)
+	if(e.type=='keypress' && k==13){
             send_message();
+            chatApp.client.stop_writing();
+        }else{
+            console.log('key', k);
+            chatApp.set_writing(true);
+            chatApp.client.start_writing();
+        }
     });
 
     $('#help_button').click(function(){introJs().start();});
