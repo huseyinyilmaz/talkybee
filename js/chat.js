@@ -314,9 +314,10 @@
                         break;
                     case 'writing_change':
                         console.log('writing change');
+                        var current_user_code = chatApp.user_code;
                         var writing_user_list = _.filter(chatApp.client.users,
                                                          function(user, user_code){
-                                                             return user.is_writing;
+                                                             return user.is_writing && current_user_code !== user_code;
                                                          });
                         update_writing_message(writing_user_list);
                         break;
