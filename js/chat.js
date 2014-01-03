@@ -170,14 +170,15 @@
             _.bindAll(this);
             this.collection.bind('add', this.addMessage);
 	},
+        scrollToBottom: function(){
+            // keep the scroll to bottom
+            this.$scroll_el.stop().animate({scrollTop: this.$scroll_el[0].scrollHeight}, 800);
+        },
 	addMessage: function(model){
             var messageView = new chatApp.MessageView({model:model});
             messageView.render();
             this.$el.append(messageView.$el);
-            // keep the scroll to bottom
-            this.$scroll_el.stop().animate({
-		scrollTop: this.$scroll_el[0].scrollHeight
-            }, 800);
+            this.scrollToBottom();
 	}
     });
 
@@ -258,8 +259,7 @@
             }
             $writing_message_container.html(value);
             
-
-            
+            chatApp.messagesView.scrollToBottom();
         }
     ////////////////////
     // Event handlers //
