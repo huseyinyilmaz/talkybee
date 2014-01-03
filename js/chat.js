@@ -21,6 +21,21 @@
             
         }
 
+        function linkify(string, includeW3, target){
+            /*source: https://github.com/uudashr/jquery-linkify/blob/v2.1/jquery.linkify.js*/
+          string = string.replace(/((http|https|ftp)\:\/\/|\bw{3}\.)[a-z0-9\-\.]+\.[a-z]{2,3}(:[a-z0-9]*)?\/?([a-z\u00C0-\u017F0-9\-\._\?\,\'\/\\\+&amp;%\$#\=~])*/gi, function(captured) {
+            var uri;
+            if (captured.toLowerCase().indexOf("www.") === 0) {
+              uri = "http://" + captured;
+            } else {
+              uri = captured;
+            }
+            return "<a href=\"" + uri+ "\" target=\"" + target + "\">" + captured + "</a>";
+          });
+          
+          return string;
+        }
+
     var chatApp = {
         nick_regex: /^[a-z0-9_]+$/i,
         nick_size: 20,
@@ -154,7 +169,7 @@
                      is_error:function(){return this.type=='error';},
                      linkify: function (){
                          return function (text, render){
-                             return linkify(render(text));
+                             return linkify(render(text),{punct_regexp: null});
                          };
                      }                     
                     }
