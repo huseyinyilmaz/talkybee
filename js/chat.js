@@ -28,7 +28,7 @@
 	user_code: '',
 	user_nick: '',
 	is_locked: false,
-        is_writing: false,
+
 	update_user: function(code, nick){
             var previous_user = chatApp.users.get(code);
             if(previous_user && previous_user.get('nick') !== nick){
@@ -53,9 +53,6 @@
                 }
             }
 	},
-        set_writing: function(is_writing){
-            console.log('is_writing', is_writing);
-        },
 	add_message: function(code,message){
             var user = chatApp.users.get(code);
             var nick = user.get('nick');
@@ -157,7 +154,6 @@
                      is_error:function(){return this.type=='error';},
                      linkify: function (){
                          return function (text, render){
-                             console.log(render(text));
                              return linkify(render(text));
                          };
                      }                     
@@ -247,7 +243,24 @@
             el: '#messages_container',
             scroll_el: '#messages_scroll_container'
         });
-    
+
+        var $writing_message_container = $("#writing_message_container");
+        var writing_message_template_text = $("#writing_message_template").html();
+
+        function update_writing_message(user_list){
+            var value = '';
+            if(user_list.length > 0){
+                value = Mustache.render(
+                    writing_message_template_text,
+                    {name_list_str: _.pluck(user_list,
+                                            'nick').join(', ')});
+                
+            }
+            $writing_message_container.html(value);
+            
+
+            
+        }
     ////////////////////
     // Event handlers //
     ////////////////////
@@ -280,6 +293,14 @@
                             return chatApp.client.users[model.id] === undefined;
                         });
                         chatApp.users.remove(removed_users);
+                        break;
+                    case 'writing_change':
+                        console.log('writing change');
+                        var writing_user_list = _.filter(chatApp.client.users,
+                                                         function(user, user_code){
+                                                             return user.is_writing;
+                                                         });
+                        update_writing_message(writing_user_list);
                         break;
                     default:
                         console.log('chat-Invalid info case', data);
@@ -317,10 +338,7 @@
 	var k = e.which || e.keyCode;
 	if(e.type=='keypress' && k==13){
             send_message();
-            chatApp.client.stop_writing();
         }else{
-            console.log('key', k);
-            chatApp.set_writing(true);
             chatApp.client.start_writing();
         }
     });
