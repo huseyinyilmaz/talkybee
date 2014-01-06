@@ -3,52 +3,43 @@ talkybee
 
 An instant chat room service. (Source code for http://www.talkybee.com)
 
-How to build a release
-----------------------
+How to get the code
+-------------------
 
-To use talkybee in a production system, you should package it. Your package will include all dependencies including erlang runtime itself. So you won't need erlang installed on your production system in order to run it. To generate a package first download source code from github.
+Just clone the repository to your local file system.
 
 ::
 
    $ git clone git://github.com/huseyinyilmaz/talkybee.git
 
-After this you should download dependencies
+How to configure
+----------------
+
+talkybee is a full client side application that uses publicator as backend. In order to use talkybee:
+
+* You must configure js/chat.js and change publicator address. Here is the variable that you should change
 
 ::
 
-   $ make init
+   (function(){
+    "use strict";
+    // var _PUBLICATOR_SERVER = 'localhost:8766';
+    var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
+    ...
 
-Now you can generate a package for your system.
+Change _PUBLICATOR_SERVER variable to your server address.
 
-::
-
-   $ make pack
-
-talkybee.tar.gz will be generated in project root directory (current directory). You can untar it anywhere in your target system and run it with 
-
-::
-
-   $ bin/talkybee start
-
-How to initialize for development
----------------------------------
-
-If you want to checkout the code you can initialize system for development. In addition to production dependencies.
-talkybee uses sync to reload the a module when a code change occurs. So you should also download that development dependency. Also some development specific code must be compiled.
+* Change publicator client and publicator chat client addresses from html. Just goto end of the index.html file and change publicator-chat and publicator-client scripts to your publicator server. Publicator do not generate those scripts (Which means they are static files), so you can copy them with your static files here is the links that you should change in your html file
 
 ::
 
-   $ make initdev
+    <!-- <script src="http://localhost:8766/js/publicator-client.js"></script>
+    <script src="http://localhost:8766/js/chat-client.js"></script> -->
+    <script src="http://www.talkybee.com:8766/js/publicator-client.js"></script>
+    <script src="http://www.talkybee.com:8766/js/chat-client.js"></script>
 
-This will download development dependencies. After this you can start server in development mode with
 
-::
+How to run
+----------
 
-   $ make start   
-
-You can also run eunit tests with the following.
-
-::
-
-   $ make eunit
-
+Since talkybee is a static app you can just serve project from your favorite web server.

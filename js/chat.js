@@ -1,6 +1,7 @@
 (function(){
     "use strict";
-
+    // var _PUBLICATOR_SERVER = 'localhost:8766';
+    var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
     $(function(){
 	window.enable_logging = true;
 	//////////////////////
@@ -283,8 +284,7 @@
     // Event handlers //
     ////////////////////
     function init(room_code){
-        // publicator.set_host('localhost:8766');
-        publicator.set_host('www.talkybee.com:8766');
+        publicator.set_host(_PUBLICATOR_SERVER);
 	chatApp.client = publicator.chat.get_client(room_code);
 	chatApp.client.onopen(
             _.bind(
