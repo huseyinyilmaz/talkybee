@@ -1,0 +1,15 @@
+{
+  "name": "talkybee",
+  "version": "0.0.1",
+  "dependencies": {
+    "jquery": "~2.1.0",
+    "backbone": "~1.1.0",
+    "underscore": "~1.5.2",
+    "bootstrap.css": "~2.3.2",
+    "jquery-cookie": "~1.4.0",
+    "jquery-titlealert": "git@github.com:heyman/jquery-titlealert.git",
+    "json2": "latest",
+    "intro.js": "latest",
+    "mustache": "latest"
+  }
+}

@@ -18,3 +18,4 @@ talkybee.sublime-workspace
 /rel/talkybee
 /config
 .DS_Store
+/bower_components

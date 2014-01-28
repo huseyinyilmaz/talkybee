@@ -135,7 +135,7 @@
 
     chatApp.UsersView = Backbone.View.extend({
 	initialize: function(options){
-            _.bindAll(this);
+            _.bindAll(this, 'render');
             this.collection.bind('add', this.render);
             this.collection.bind('remove', this.render);
             this.collection.bind('change', this.render);
@@ -155,7 +155,7 @@
 	className: 'message',
 	template_text: $('#message_template').html(),
 	initialize: function(){
-            _.bindAll(this);
+            _.bindAll(this, 'render');
 	},
 	render: function(){
             var msg = this.model.toJSON();
@@ -186,7 +186,7 @@
     chatApp.MessagesView = Backbone.View.extend({
 	initialize: function(options){
             this.$scroll_el = $(options.scroll_el);
-            _.bindAll(this);
+            _.bindAll(this, 'scrollToBottom', 'addMessage');
             this.collection.bind('add', this.addMessage);
 	},
         scrollToBottom: function(){
@@ -203,7 +203,7 @@
 
     chatApp.CurrentUserView = Backbone.View.extend({
 	initialize: function(options){
-            _.bindAll(this);
+            _.bindAll(this, 'render', 'edit_nick', 'render_edit');
             this.model.bind('add', this.render);
             this.model.bind('remove', this.render);
             this.model.bind('change', this.render);

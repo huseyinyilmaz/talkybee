@@ -6,11 +6,16 @@ An instant chat room service. (Source code for http://www.talkybee.com)
 How to get the code
 -------------------
 
-Just clone the repository to your local file system.
+First of all clone the repository to your local file system.
 
 ::
 
    $ git clone git://github.com/huseyinyilmaz/talkybee.git
+
+After that get javascript dependencies with bower (bower must be installed.)
+
+::
+   $ bower install
 
 How to configure
 ----------------
