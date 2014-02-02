@@ -72,9 +72,7 @@
                 }
             }
 	},
-	add_message: function(code,message){
-            var user = chatApp.users.get(code);
-            var nick = user.get('nick');
+	add_message: function(code,nick, message){
             chatApp.messages.add({code:code,
                                   nick:nick,
                                   message:message,
@@ -330,7 +328,7 @@
                 });
         chatApp.client.onmessage(
 		function(data){
-                    chatApp.add_message(data.code, data.data);
+                    chatApp.add_message(data.code, data.nick, data.data);
                 });
         chatApp.client.onerror(
 		function(data){
