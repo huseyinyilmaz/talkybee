@@ -1,7 +1,16 @@
 (function(){
     "use strict";
-    // var _PUBLICATOR_SERVER = 'localhost:8766';
+    
+    // Change this variable to connect to different publicator host
     var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
+
+    // If there is no host (file is opened from local file system)
+    // use localhost publicator
+    if (document.location.host === ''){
+        _PUBLICATOR_SERVER = 'localhost:8766';
+    }
+        
+    
     $(function(){
 	window.enable_logging = true;
 	//////////////////////
@@ -28,8 +37,8 @@
             string = string.replace(url_regex, function(captured) {
                 var uri;
                 if (!((captured.toLowerCase().indexOf("http://") === 0)
-                    ||(captured.toLowerCase().indexOf("https://") === 0)
-                    ||(captured.toLowerCase().indexOf("ftp://") === 0))){
+                      ||(captured.toLowerCase().indexOf("https://") === 0)
+                      ||(captured.toLowerCase().indexOf("ftp://") === 0))){
               uri = "http://" + captured;
             } else {
               uri = captured;

@@ -1,6 +1,6 @@
 {
   "name": "talkybee",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "jquery": "~2.1.0",
     "backbone": "~1.1.0",
@@ -10,6 +10,7 @@
     "jquery-titlealert": "git@github.com:heyman/jquery-titlealert.git",
     "json2": "latest",
     "intro.js": "latest",
-    "mustache": "latest"
+    "mustache": "latest",
+    "publicator-js-client": "git@github.com:huseyinyilmaz/publicator-js-client.git#v0.1.1"
   }
 }
