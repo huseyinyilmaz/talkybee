@@ -1,6 +1,6 @@
 (function(){
     "use strict";
-    
+
     // Change this variable to connect to different publicator host
     var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
 
