@@ -3,6 +3,8 @@
     
     // Change this variable to connect to different publicator host
     var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
+    
+    _PUBLICATOR_SERVER = 'localhost:8766';
 
     // If there is no host (file is opened from local file system)
     // use localhost publicator
@@ -312,6 +314,7 @@
                     case 'user_change':
                         _.each(chatApp.client.users,
                                function(user, user_code){
+                                   console.log('call update_user', user, user_code);
                                    chatApp.update_user(user.code, user.nick);
                                });
                         var removed_users = chatApp.users.filter(function(model){
