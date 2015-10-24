@@ -11,6 +11,6 @@
     "json2": "latest",
     "intro.js": "latest",
     "mustache": "latest",
-    "publicator-js-client": "git@github.com:huseyinyilmaz/publicator-js-client.git#v0.1.1"
+    "publicator-js-client": "git@github.com:huseyinyilmaz/publicator-js-client.git"
   }
 }
