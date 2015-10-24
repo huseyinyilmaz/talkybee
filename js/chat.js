@@ -4,7 +4,7 @@
     // Change this variable to connect to different publicator host
     var _PUBLICATOR_SERVER = 'www.talkybee.com:8766';
     
-    _PUBLICATOR_SERVER = 'localhost:8766';
+    // _PUBLICATOR_SERVER = 'localhost:8766';
 
     // If there is no host (file is opened from local file system)
     // use localhost publicator
